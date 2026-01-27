@@ -77,24 +77,111 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ## Deployment (Railway)
 
-### Backend
+### Prérequis
 
-1. Create a new Railway project
-2. Connect your GitHub repository
-3. Set the root directory to `backend`
-4. Add environment variables:
-   - `GOOGLE_API_KEY`
-   - `SERPAPI_API_KEY`
-   - `FRONTEND_URL` (your frontend Railway URL)
-5. Deploy
+1. Créer un compte sur [Railway](https://railway.app)
+2. Installer le CLI Railway (optionnel) : `npm i -g @railway/cli`
+3. Avoir un dépôt Git (GitHub/GitLab) avec le code
 
-### Frontend
+### Étape 1 : Déployer le Backend
 
-1. Create another Railway service in the same project
-2. Set the root directory to `frontend`
-3. Add environment variables:
-   - `NEXT_PUBLIC_API_URL` (your backend Railway URL)
-4. Deploy
+1. **Créer un nouveau projet Railway**
+   - Aller sur [railway.app](https://railway.app)
+   - Cliquer sur "New Project"
+   - Sélectionner "Deploy from GitHub repo"
+   - Choisir votre dépôt `hybridation`
+
+2. **Configurer le service Backend**
+   - Cliquer sur "New Service"
+   - Sélectionner "GitHub Repo" et choisir votre dépôt
+   - Dans les settings du service :
+     - **Root Directory** : `backend`
+     - **Build Command** : `pip install -r requirements.txt`
+     - **Start Command** : `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+3. **Ajouter les variables d'environnement**
+   - Aller dans l'onglet "Variables"
+   - Ajouter les variables suivantes :
+     ```
+     GOOGLE_API_KEY=votre_clé_google_api
+     OPENAI_API_KEY=votre_clé_openai_api
+     SERPAPI_API_KEY=votre_clé_serpapi
+     PORT=8000
+     ```
+   - **Note** : Ne pas ajouter `FRONTEND_URL` maintenant, on le fera après avoir déployé le frontend
+
+4. **Déployer**
+   - Railway va automatiquement détecter les changements et déployer
+   - Attendre que le déploiement soit terminé
+   - Noter l'URL du backend (ex: `https://backend-production-xxxx.up.railway.app`)
+
+### Étape 2 : Déployer le Frontend
+
+1. **Créer un nouveau service dans le même projet**
+   - Dans votre projet Railway, cliquer sur "New Service"
+   - Sélectionner "GitHub Repo" et choisir le même dépôt
+   - Dans les settings :
+     - **Root Directory** : `frontend`
+     - **Build Command** : `npm install && npm run build`
+     - **Start Command** : `npm start`
+
+2. **Ajouter les variables d'environnement**
+   - Aller dans l'onglet "Variables"
+   - Ajouter :
+     ```
+     NEXT_PUBLIC_API_URL=https://votre-backend-url.railway.app
+     ```
+   - Remplacer par l'URL réelle de votre backend
+
+3. **Déployer**
+   - Railway va automatiquement builder et déployer
+   - Noter l'URL du frontend (ex: `https://frontend-production-yyyy.up.railway.app`)
+
+### Étape 3 : Configurer CORS (Backend)
+
+1. **Retourner au service Backend**
+   - Aller dans les "Variables" du service backend
+   - Ajouter ou modifier :
+     ```
+     FRONTEND_URL=https://votre-frontend-url.railway.app
+     ```
+   - Railway va redéployer automatiquement
+
+### Vérification
+
+1. **Backend Health Check**
+   - Visiter : `https://votre-backend-url.railway.app/health`
+   - Devrait retourner : `{"status":"healthy","google_api_configured":true,...}`
+
+2. **Frontend**
+   - Visiter : `https://votre-frontend-url.railway.app`
+   - L'application devrait se charger
+
+### Commandes Railway CLI (optionnel)
+
+```bash
+# Se connecter
+railway login
+
+# Lier le projet
+railway link
+
+# Déployer
+railway up
+
+# Voir les logs
+railway logs
+
+# Ajouter des variables
+railway variables set GOOGLE_API_KEY=votre_clé
+```
+
+### Troubleshooting
+
+- **Erreur de build** : Vérifier que tous les fichiers sont commités
+- **CORS errors** : Vérifier que `FRONTEND_URL` est correctement configuré dans le backend
+- **Port errors** : Railway utilise automatiquement `$PORT`, ne pas le hardcoder
+- **Variables d'environnement** : Vérifier qu'elles sont bien définies dans Railway (pas dans `.env`)
 
 ## API Endpoints
 
