@@ -49,7 +49,7 @@ export function ProductSheet({
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-3 rounded-lg glass border-white/10"
+            className="mb-6 p-3 rounded-lg liquid-ios26"
           >
             <p className="text-xs text-muted-foreground mb-2">Recherche de :</p>
             <img
@@ -127,7 +127,7 @@ export function ProductSheet({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="overflow-hidden glass-card border-white/10 hover:border-primary/30 transition-liquid">
+                <Card className="overflow-hidden liquid-ios26 hover:border-primary/30 transition-spring">
                   <CardContent className="p-4">
                     <div className="flex gap-4">
                       {product.image && (
@@ -162,7 +162,7 @@ export function ProductSheet({
                           <Button
                             size="sm"
                             variant="outline"
-                            className="ml-auto glass-button border-white/15 hover:border-white/25 transition-liquid"
+                            className="ml-auto liquid-ios26-button transition-spring"
                             asChild
                           >
                             <a

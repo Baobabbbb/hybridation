@@ -87,10 +87,10 @@ export function UploadDropzone({
           >
             <label
               className={cn(
-                "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-liquid",
+                "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-spring",
                 isDragging
-                  ? "glass-strong border-primary/40 scale-[1.02]"
-                  : "glass border-white/20 hover:border-primary/40 hover:glass-strong",
+                  ? "liquid-ios26-strong border-primary/40 scale-[1.02]"
+                  : "liquid-ios26 border-white/20 hover:border-primary/40 hover:liquid-ios26-strong",
                 disabled && "opacity-50 cursor-not-allowed"
               )}
               onDragOver={handleDragOver}
@@ -111,8 +111,8 @@ export function UploadDropzone({
               >
                 <motion.div
                   className={cn(
-                    "p-4 rounded-full mb-4 transition-liquid",
-                    isDragging ? "glass-button border-primary/30" : "glass border-white/10"
+                    "p-4 rounded-full mb-4 transition-spring",
+                    isDragging ? "liquid-ios26-button" : "liquid-ios26"
                   )}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -143,7 +143,7 @@ export function UploadDropzone({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="relative w-full h-64 rounded-2xl overflow-hidden glass-card"
+            className="relative w-full h-64 rounded-2xl overflow-hidden liquid-ios26"
           >
             {preview && (
               <img
@@ -165,7 +165,7 @@ export function UploadDropzone({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={handleClear}
-                  className="p-2 rounded-full glass-button border-white/20 hover:border-white/30 transition-liquid"
+                  className="p-2 rounded-full liquid-ios26-button transition-spring"
                 >
                   <X className="w-4 h-4 text-white" />
                 </motion.button>
