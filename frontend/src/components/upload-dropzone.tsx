@@ -87,10 +87,10 @@ export function UploadDropzone({
           >
             <label
               className={cn(
-                "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300",
+                "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-liquid",
                 isDragging
-                  ? "border-primary bg-primary/5 scale-[1.02]"
-                  : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
+                  ? "glass-strong border-primary/40 scale-[1.02]"
+                  : "glass border-white/20 hover:border-primary/40 hover:glass-strong",
                 disabled && "opacity-50 cursor-not-allowed"
               )}
               onDragOver={handleDragOver}
@@ -111,8 +111,8 @@ export function UploadDropzone({
               >
                 <motion.div
                   className={cn(
-                    "p-4 rounded-full mb-4 transition-colors",
-                    isDragging ? "bg-primary/20" : "bg-muted"
+                    "p-4 rounded-full mb-4 transition-liquid",
+                    isDragging ? "glass-button border-primary/30" : "glass border-white/10"
                   )}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -143,7 +143,7 @@ export function UploadDropzone({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="relative w-full h-64 rounded-2xl overflow-hidden bg-muted"
+            className="relative w-full h-64 rounded-2xl overflow-hidden glass-card"
           >
             {preview && (
               <img
@@ -165,7 +165,7 @@ export function UploadDropzone({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={handleClear}
-                  className="p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors"
+                  className="p-2 rounded-full glass-button border-white/20 hover:border-white/30 transition-liquid"
                 >
                   <X className="w-4 h-4 text-white" />
                 </motion.button>

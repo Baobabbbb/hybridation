@@ -115,14 +115,15 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Gradient background effect */}
+      {/* Liquid glass background effect */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-transparent rotate-12" />
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-primary/5 via-transparent to-transparent -rotate-12" />
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rotate-12 blur-3xl animate-pulse" />
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-primary/10 via-primary/5 to-transparent -rotate-12 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-r from-primary/5 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       {/* Header */}
-      <header className="border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
+      <header className="glass-strong sticky top-0 z-50 border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <motion.div
@@ -131,7 +132,7 @@ export default function HomePage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="p-2 rounded-xl bg-primary/10">
+              <div className="p-2 rounded-xl glass-button">
                 <Home className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -145,7 +146,12 @@ export default function HomePage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <Button variant="outline" size="sm" onClick={handleReset}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleReset}
+                  className="glass-button border-white/15 hover:border-white/25 transition-liquid"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Nouveau design
                 </Button>
@@ -174,7 +180,7 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border-white/10 text-primary text-sm font-medium mb-4"
                 >
                   <Sparkles className="w-4 h-4" />
                   Design d'intérieur propulsé par l'IA
@@ -201,7 +207,7 @@ export default function HomePage() {
               </div>
 
               {/* Upload Card */}
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+              <Card className="glass-card border-white/10 shadow-2xl">
                 <CardContent className="p-6 md:p-8 space-y-6">
                   {/* Dropzone */}
                   <UploadDropzone
@@ -219,7 +225,7 @@ export default function HomePage() {
                       placeholder="Décrivez le style souhaité... (ex: Minimaliste moderne avec tons chauds)"
                       value={style}
                       onChange={(e) => setStyle(e.target.value)}
-                      className="h-12"
+                      className="h-12 glass-input transition-liquid"
                     />
                     {/* Style suggestions */}
                     <div className="flex flex-wrap gap-2">
@@ -229,7 +235,7 @@ export default function HomePage() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setStyle(suggestion)}
-                          className="px-3 py-1 text-xs rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                          className="px-3 py-1 text-xs rounded-full glass border-white/10 hover:border-primary/30 text-muted-foreground hover:text-foreground transition-liquid"
                         >
                           {suggestion}
                         </motion.button>
@@ -239,7 +245,7 @@ export default function HomePage() {
 
                   {/* Generate Button */}
                   <Button
-                    className="w-full h-12 text-base font-medium"
+                    className="w-full h-12 text-base font-medium glass-button border-white/20 hover:border-white/30 transition-liquid"
                     size="lg"
                     onClick={handleGenerate}
                     disabled={!selectedFile || !style.trim()}
@@ -262,12 +268,16 @@ export default function HomePage() {
                   { icon: "🎨", label: "Tous les styles" },
                   { icon: "🛒", label: "Acheter" },
                 ].map((feature) => (
-                  <div key={feature.label} className="p-4">
+                  <motion.div 
+                    key={feature.label} 
+                    className="p-4 glass-card border-white/10 rounded-xl transition-liquid"
+                    whileHover={{ scale: 1.05, y: -4 }}
+                  >
                     <div className="text-2xl mb-2">{feature.icon}</div>
                     <p className="text-sm text-muted-foreground">
                       {feature.label}
                     </p>
-                  </div>
+                  </motion.div>
                 ))}
               </motion.div>
             </motion.div>
@@ -342,7 +352,7 @@ export default function HomePage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-sm font-medium mb-4"
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass border-green-500/20 text-green-500 text-sm font-medium mb-4"
                 >
                   <Sparkles className="w-4 h-4" />
                   Génération terminée
@@ -356,7 +366,7 @@ export default function HomePage() {
               </div>
 
               {/* Interactive Image */}
-              <Card className="border-border/50 overflow-hidden">
+              <Card className="glass-card border-white/10 overflow-hidden shadow-2xl">
                 <CardContent className="p-4 md:p-6">
                   <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <ShoppingCart className="w-4 h-4" />
@@ -376,7 +386,11 @@ export default function HomePage() {
                 transition={{ delay: 0.3 }}
                 className="flex justify-center gap-4 mt-6"
               >
-                <Button variant="outline" onClick={handleReset}>
+                <Button 
+                  variant="outline" 
+                  onClick={handleReset}
+                  className="glass-button border-white/15 hover:border-white/25 transition-liquid"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Recommencer
                 </Button>
@@ -390,6 +404,7 @@ export default function HomePage() {
                       link.click();
                     }
                   }}
+                  className="glass-button bg-primary/20 hover:bg-primary/30 border-primary/30 hover:border-primary/40 transition-liquid"
                 >
                   Télécharger l'image
                 </Button>
@@ -410,7 +425,7 @@ export default function HomePage() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-border/50 py-6 mt-auto">
+      <footer className="border-t border-white/10 py-6 mt-auto glass">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
             Plan2Shop AI — Transformez vos plans en pièces photoréalistes
