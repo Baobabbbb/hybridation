@@ -168,46 +168,68 @@ export default function HomePage() {
         <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background/95" />
       )}
 
-      {/* Header - Responsive avec espacement du haut */}
-      <header className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10 mt-4 sm:mt-6 md:mt-8">
+      {/* Header - Responsive avec espacement du haut et animations améliorées */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10 mt-4 sm:mt-6 md:mt-8"
+      >
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-5">
           <div className="flex items-center justify-between gap-2">
             <motion.div
-              className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0 flex-1"
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0 flex-1 group"
               onClick={handleReset}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, x: 2 }}
               whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
             >
-              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl liquid-ios26-button flex-shrink-0">
+              <motion.div
+                className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl liquid-ios26-button flex-shrink-0"
+                whileHover={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5 }}
+              >
                 <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              </div>
+              </motion.div>
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold tracking-tight liquid-text truncate">Aedis</h1>
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight liquid-text truncate group-hover:text-primary transition-colors duration-300">Aedis</h1>
                 <p className="text-[10px] sm:text-xs liquid-text-muted hidden sm:block">Design d'intérieur IA</p>
               </div>
             </motion.div>
 
             {appState === "result" && (
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ 
+                  duration: 0.5,
+                  ease: [0.34, 1.56, 0.64, 1]
+                }}
                 className="flex-shrink-0"
               >
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleReset}
-                  className="liquid-ios26-button transition-spring text-xs sm:text-sm px-2 sm:px-3"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Nouveau design</span>
-                  <span className="sm:hidden">Nouveau</span>
-                </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleReset}
+                    className="liquid-ios26-button transition-spring text-xs sm:text-sm px-2 sm:px-3 group relative overflow-hidden"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+                    <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 relative z-10" />
+                    <span className="relative z-10 hidden sm:inline">Nouveau design</span>
+                    <span className="relative z-10 sm:hidden">Nouveau</span>
+                  </Button>
+                </motion.div>
               </motion.div>
             )}
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content - Plus d'espacement */}
       <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12 md:py-20 flex-1">
@@ -216,37 +238,68 @@ export default function HomePage() {
           {appState === "upload" && (
             <motion.div
               key="upload"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ 
+                duration: 0.6,
+                ease: [0.23, 1, 0.32, 1]
+              }}
               className="max-w-2xl mx-auto"
             >
-              {/* Hero Text - Responsive avec plus d'espacement */}
+              {/* Hero Text - Responsive avec plus d'espacement et animations améliorées */}
               <div className="text-center mb-12 sm:mb-16 md:mb-20">
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+                  initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ 
+                    delay: 0.1,
+                    duration: 0.6,
+                    ease: [0.23, 1, 0.32, 1]
+                  }}
                   className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full liquid-ios26 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4"
                 >
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <motion.div
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </motion.div>
                   <span className="whitespace-nowrap">Design d'intérieur propulsé par l'IA</span>
                 </motion.div>
                 <motion.h2
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4 px-2"
+                  transition={{ 
+                    delay: 0.2,
+                    duration: 0.7,
+                    ease: [0.23, 1, 0.32, 1]
+                  }}
+                  className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4 px-2 liquid-text"
                 >
                   Transformez vos
                   <br />
-                  <span className="text-primary">plans architecturaux</span>
+                  <motion.span 
+                    className="text-primary inline-block"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ 
+                      delay: 0.4,
+                      duration: 0.5,
+                      ease: [0.34, 1.56, 0.64, 1]
+                    }}
+                  >
+                    plans architecturaux
+                  </motion.span>
                 </motion.h2>
                 <motion.p
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
+                  transition={{ 
+                    delay: 0.35,
+                    duration: 0.6,
+                    ease: [0.23, 1, 0.32, 1]
+                  }}
                   className="text-base sm:text-lg text-muted-foreground max-w-md mx-auto px-2"
                 >
                   Téléchargez votre plan architectural et regardez l'IA le transformer en
@@ -275,54 +328,108 @@ export default function HomePage() {
                       onChange={(e) => setStyle(e.target.value)}
                       className="h-10 sm:h-12 text-sm sm:text-base liquid-ios26-input transition-spring"
                     />
-                    {/* Style suggestions - Responsive */}
+                    {/* Style suggestions - Responsive avec animations améliorées */}
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {STYLE_SUGGESTIONS.map((suggestion) => (
+                      {STYLE_SUGGESTIONS.map((suggestion, index) => (
                         <motion.button
                           key={suggestion}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ 
+                            delay: 0.3 + index * 0.05,
+                            duration: 0.4,
+                            ease: [0.34, 1.56, 0.64, 1]
+                          }}
+                          whileHover={{ 
+                            scale: 1.08,
+                            y: -2,
+                            transition: { duration: 0.2 }
+                          }}
+                          whileTap={{ scale: 0.96 }}
                           onClick={() => setStyle(suggestion)}
-                          className="px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full liquid-ios26 text-muted-foreground hover:text-foreground transition-spring"
+                          className="px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full liquid-ios26 text-muted-foreground hover:text-foreground transition-spring relative overflow-hidden group"
                         >
-                          {suggestion}
+                          <motion.div
+                            className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100"
+                            transition={{ duration: 0.3 }}
+                          />
+                          <span className="relative z-10">{suggestion}</span>
                         </motion.button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Generate Button - Responsive */}
-                  <Button
-                    className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium liquid-ios26-button transition-spring"
-                    size="lg"
-                    onClick={handleGenerate}
-                    disabled={!selectedFile || !style.trim()}
+                  {/* Generate Button - Responsive avec animations améliorées */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
                   >
-                    <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
-                    Générer
-                  </Button>
+                    <Button
+                      className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium liquid-ios26-button transition-spring group relative overflow-hidden"
+                      size="lg"
+                      onClick={handleGenerate}
+                      disabled={!selectedFile || !style.trim()}
+                    >
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        initial={{ x: "-100%" }}
+                        whileHover={{ x: "100%" }}
+                        transition={{ duration: 0.6 }}
+                      />
+                      <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 relative z-10" />
+                      <span className="relative z-10">Générer</span>
+                    </Button>
+                  </motion.div>
                 </CardContent>
               </Card>
 
-              {/* Features - Avec plus d'espacement */}
+              {/* Features - Avec plus d'espacement et animations améliorées */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                transition={{ 
+                  delay: 0.5,
+                  duration: 0.6,
+                  ease: [0.23, 1, 0.32, 1]
+                }}
                 className="mt-16 sm:mt-20 md:mt-24 grid grid-cols-3 gap-4 sm:gap-6 text-center"
               >
                 {[
                   { icon: "✨", label: "Propulsé par l'IA" },
                   { icon: "🎨", label: "Tous les styles" },
                   { icon: "🛒", label: "Acheter" },
-                ].map((feature) => (
+                ].map((feature, index) => (
                   <motion.div 
-                    key={feature.label} 
-                    className="p-4 sm:p-5 md:p-6 liquid-ios26 rounded-xl transition-spring"
-                    whileHover={{ scale: 1.05, y: -4 }}
+                    key={feature.label}
+                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: 0.6 + index * 0.1,
+                      duration: 0.5,
+                      ease: [0.34, 1.56, 0.64, 1]
+                    }}
+                    className="p-4 sm:p-5 md:p-6 liquid-ios26 rounded-xl transition-spring group relative overflow-hidden"
+                    whileHover={{ 
+                      scale: 1.06, 
+                      y: -6,
+                      transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] }
+                    }}
                   >
-                    <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">{feature.icon}</div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    />
+                    <motion.div 
+                      className="text-2xl sm:text-3xl mb-2 sm:mb-3 relative z-10"
+                      whileHover={{ 
+                        rotate: [0, -10, 10, 0],
+                        scale: 1.1
+                      }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {feature.icon}
+                    </motion.div>
+                    <p className="text-xs sm:text-sm text-muted-foreground relative z-10 group-hover:text-foreground transition-colors">
                       {feature.label}
                     </p>
                   </motion.div>
@@ -331,33 +438,70 @@ export default function HomePage() {
             </motion.div>
           )}
 
-          {/* Generating State */}
+          {/* Generating State - Amélioré avec animations fluides */}
           {appState === "generating" && (
             <motion.div
               key="generating"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ 
+                duration: 0.6,
+                ease: [0.23, 1, 0.32, 1]
+              }}
               className="max-w-lg mx-auto text-center py-24"
             >
               <motion.div
-                animate={{
-                  rotate: 360,
-                }}
+                className="relative w-20 h-20 mx-auto mb-8"
+                animate={{ rotate: 360 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   ease: "linear",
                 }}
-                className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-primary/20 border-t-primary"
-              />
-              <h3 className="text-2xl font-bold mb-2">Création de votre pièce</h3>
-              <p className="text-muted-foreground mb-8">
+              >
+                <div className="absolute inset-0 rounded-full border-4 border-primary/10" />
+                <motion.div
+                  className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary"
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+                <motion.div
+                  className="absolute inset-2 rounded-full bg-primary/10"
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 0.8, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+              </motion.div>
+              <motion.h3
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl sm:text-3xl font-bold mb-3 liquid-text"
+              >
+                Création de votre pièce
+              </motion.h3>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-muted-foreground mb-10 text-sm sm:text-base"
+              >
                 L'IA transforme votre plan en un design photoréaliste...
-              </p>
+              </motion.p>
 
-              {/* Progress steps */}
-              <div className="space-y-3 text-left max-w-xs mx-auto">
+              {/* Progress steps - Amélioré */}
+              <div className="space-y-4 text-left max-w-xs mx-auto">
                 {[
                   "Analyse de la structure du plan",
                   "Amélioration du prompt de style",
@@ -365,48 +509,116 @@ export default function HomePage() {
                 ].map((step, i) => (
                   <motion.div
                     key={step}
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.5 }}
-                    className="flex items-center gap-3 text-sm"
+                    transition={{ 
+                      delay: 0.4 + i * 0.3,
+                      duration: 0.5,
+                      ease: [0.23, 1, 0.32, 1]
+                    }}
+                    className="flex items-center gap-3 text-sm group"
                   >
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        delay: i * 0.3,
+                      className="relative"
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        rotate: [0, 180, 360]
                       }}
-                      className="w-2 h-2 rounded-full bg-primary"
-                    />
-                    <span className="text-muted-foreground">{step}</span>
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: i * 0.4,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <div className="w-3 h-3 rounded-full bg-primary relative z-10" />
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-primary/30"
+                        animate={{ 
+                          scale: [1, 2, 1],
+                          opacity: [0.5, 0, 0.5]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.4,
+                        }}
+                      />
+                    </motion.div>
+                    <motion.span
+                      className="text-muted-foreground group-hover:text-foreground transition-colors"
+                      animate={{ opacity: [0.7, 1, 0.7] }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: i * 0.4,
+                      }}
+                    >
+                      {step}
+                    </motion.span>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* Result State */}
+          {/* Result State - Avec animations améliorées */}
           {appState === "result" && generatedImage && (
             <motion.div
               key="result"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ 
+                duration: 0.6,
+                ease: [0.23, 1, 0.32, 1]
+              }}
               className="max-w-5xl mx-auto"
             >
-              {/* Result Header - Responsive avec plus d'espacement */}
+              {/* Result Header - Responsive avec plus d'espacement et animations améliorées */}
               <div className="text-center mb-8 sm:mb-12 md:mb-16 px-2">
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full liquid-ios26 text-green-500 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ 
+                    delay: 0.1,
+                    duration: 0.5,
+                    ease: [0.34, 1.56, 0.64, 1]
+                  }}
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full liquid-ios26 text-green-500 text-xs sm:text-sm font-medium mb-3 sm:mb-4"
+                >
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </motion.div>
                   Génération terminée
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold mb-2">Votre pièce meublée</h2>
+                </motion.div>
+                <motion.h2 
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    delay: 0.2,
+                    duration: 0.6,
+                    ease: [0.23, 1, 0.32, 1]
+                  }}
+                  className="text-2xl sm:text-3xl font-bold mb-2 liquid-text"
+                >
+                  Votre pièce meublée
+                </motion.h2>
                 {enhancedStyle && (
-                  <p className="text-muted-foreground text-xs sm:text-sm max-w-xl mx-auto px-2">
+                  <motion.p 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      delay: 0.3,
+                      duration: 0.5
+                    }}
+                    className="text-muted-foreground text-xs sm:text-sm max-w-xl mx-auto px-2"
+                  >
                     Style : {enhancedStyle}
-                  </p>
+                  </motion.p>
                 )}
               </div>
 
@@ -441,32 +653,63 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Action Buttons - Responsive avec plus d'espacement */}
-              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 md:mt-12 px-2">
-                <Button 
-                  variant="outline" 
-                  onClick={handleReset}
-                  className="liquid-ios26-button w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
+              {/* Action Buttons - Responsive avec plus d'espacement et animations améliorées */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  delay: 0.4,
+                  duration: 0.5,
+                  ease: [0.23, 1, 0.32, 1]
+                }}
+                className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 md:mt-12 px-2"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                  Recommencer
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={() => {
-                    if (generatedImage) {
-                      const link = document.createElement("a");
-                      link.href = generatedImage;
-                      link.download = "aedis-design.png";
-                      link.click();
-                    }
-                  }}
-                  className="liquid-ios26-button w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
+                  <Button 
+                    variant="outline" 
+                    onClick={handleReset}
+                    className="liquid-ios26-button w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10 group relative overflow-hidden"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100"
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "100%" }}
+                      transition={{ duration: 0.6 }}
+                    />
+                    <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 relative z-10" />
+                    <span className="relative z-10">Recommencer</span>
+                  </Button>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <span className="hidden sm:inline">Télécharger l'image</span>
-                  <span className="sm:hidden">Télécharger</span>
-                </Button>
-              </div>
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      if (generatedImage) {
+                        const link = document.createElement("a");
+                        link.href = generatedImage;
+                        link.download = "aedis-design.png";
+                        link.click();
+                      }
+                    }}
+                    className="liquid-ios26-button w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10 group relative overflow-hidden"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100"
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "100%" }}
+                      transition={{ duration: 0.6 }}
+                    />
+                    <span className="relative z-10 hidden sm:inline">Télécharger l'image</span>
+                    <span className="relative z-10 sm:hidden">Télécharger</span>
+                  </Button>
+                </motion.div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
