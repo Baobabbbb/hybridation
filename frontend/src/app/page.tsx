@@ -131,7 +131,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background flex flex-col">
       {/* iOS 26 Liquid Glass background - Simplified for performance */}
       {appState !== "result" && (
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -168,9 +168,9 @@ export default function HomePage() {
         <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background/95" />
       )}
 
-      {/* Header - Responsive */}
-      <header className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10">
-        <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-4">
+      {/* Header - Responsive avec espacement du haut */}
+      <header className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10 mt-4 sm:mt-6 md:mt-8">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-5">
           <div className="flex items-center justify-between gap-2">
             <motion.div
               className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0 flex-1"
@@ -209,8 +209,8 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-16">
+      {/* Main Content - Plus d'espacement */}
+      <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12 md:py-20 flex-1">
         <AnimatePresence mode="wait" initial={false}>
           {/* Upload State */}
           {appState === "upload" && (
@@ -222,8 +222,8 @@ export default function HomePage() {
               transition={{ duration: 0.3 }}
               className="max-w-2xl mx-auto"
             >
-              {/* Hero Text - Responsive */}
-              <div className="text-center mb-8 sm:mb-12">
+              {/* Hero Text - Responsive avec plus d'espacement */}
+              <div className="text-center mb-12 sm:mb-16 md:mb-20">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -254,9 +254,9 @@ export default function HomePage() {
                 </motion.p>
               </div>
 
-              {/* Upload Card - Responsive */}
+              {/* Upload Card - Responsive avec plus d'espacement */}
               <Card className="liquid-ios26 shadow-2xl">
-                <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
+                <CardContent className="p-5 sm:p-6 md:p-8 lg:p-10 space-y-5 sm:space-y-6 md:space-y-8">
                   {/* Dropzone */}
                   <UploadDropzone
                     onFileSelect={handleFileSelect}
@@ -304,12 +304,12 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Features */}
+              {/* Features - Avec plus d'espacement */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-12 grid grid-cols-3 gap-4 text-center"
+                className="mt-16 sm:mt-20 md:mt-24 grid grid-cols-3 gap-4 sm:gap-6 text-center"
               >
                 {[
                   { icon: "✨", label: "Propulsé par l'IA" },
@@ -318,11 +318,11 @@ export default function HomePage() {
                 ].map((feature) => (
                   <motion.div 
                     key={feature.label} 
-                    className="p-4 liquid-ios26 rounded-xl transition-spring"
+                    className="p-4 sm:p-5 md:p-6 liquid-ios26 rounded-xl transition-spring"
                     whileHover={{ scale: 1.05, y: -4 }}
                   >
-                    <div className="text-2xl mb-2">{feature.icon}</div>
-                    <p className="text-sm text-muted-foreground">
+                    <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">{feature.icon}</div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {feature.label}
                     </p>
                   </motion.div>
@@ -396,8 +396,8 @@ export default function HomePage() {
               transition={{ duration: 0.2 }}
               className="max-w-5xl mx-auto"
             >
-              {/* Result Header - Responsive */}
-              <div className="text-center mb-6 sm:mb-8 px-2">
+              {/* Result Header - Responsive avec plus d'espacement */}
+              <div className="text-center mb-8 sm:mb-12 md:mb-16 px-2">
                 <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full liquid-ios26 text-green-500 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
                   <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   Génération terminée
@@ -410,12 +410,12 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* Interactive Image - 360° View or Standard Cropper - Responsive */}
+              {/* Interactive Image - 360° View or Standard Cropper - Responsive avec plus d'espacement */}
               <Card className="liquid-ios26 overflow-hidden shadow-2xl">
-                <CardContent className="p-2 sm:p-4 md:p-6">
+                <CardContent className="p-3 sm:p-5 md:p-6 lg:p-8">
                   {is360Format ? (
                     <>
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 text-xs sm:text-sm text-muted-foreground px-1">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 text-xs sm:text-sm text-muted-foreground px-1">
                         <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         <span className="hidden sm:inline">Vue 360° • Glissez pour explorer • Cliquez sur un meuble pour le rechercher</span>
                         <span className="sm:hidden">Vue 360° • Glissez pour explorer</span>
@@ -427,7 +427,7 @@ export default function HomePage() {
                     </>
                   ) : (
                     <>
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 text-xs sm:text-sm text-muted-foreground px-1">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 text-xs sm:text-sm text-muted-foreground px-1">
                         <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                         <span className="hidden sm:inline">Cliquez et glissez pour sélectionner un meuble à acheter</span>
                         <span className="sm:hidden">Cliquez et glissez pour sélectionner</span>
@@ -441,8 +441,8 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Action Buttons - Responsive */}
-              <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-4 sm:mt-6 px-2">
+              {/* Action Buttons - Responsive avec plus d'espacement */}
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 md:mt-12 px-2">
                 <Button 
                   variant="outline" 
                   onClick={handleReset}
@@ -482,8 +482,8 @@ export default function HomePage() {
         croppedImage={croppedImage}
       />
 
-      {/* Footer - Responsive */}
-      <footer className="border-t border-white/10 py-4 sm:py-6 mt-auto liquid-ios26">
+      {/* Footer - Responsive avec espacement du bas */}
+      <footer className="border-t border-white/10 py-6 sm:py-8 md:py-10 mt-auto mb-4 sm:mb-6 md:mb-8 liquid-ios26">
         <div className="container mx-auto px-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
           <p>
             Aedis — Transformez vos plans en pièces photoréalistes
