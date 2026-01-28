@@ -132,48 +132,12 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col">
-      {/* iOS 26 Liquid Glass background - Simplified for performance */}
-      {appState !== "result" && (
-        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-          {/* Static gradient shapes - no animation for better performance */}
-          <div 
-            className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30"
-            style={{
-              background: 'linear-gradient(135deg, oklch(0.6 0.2 240 / 0.4) 0%, oklch(0.5 0.25 250 / 0.3) 100%)',
-            }}
-          />
-          <div 
-            className="absolute top-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-25"
-            style={{
-              background: 'linear-gradient(225deg, oklch(0.55 0.22 250 / 0.35) 0%, oklch(0.45 0.2 260 / 0.25) 100%)',
-            }}
-          />
-          <div 
-            className="absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-30"
-            style={{
-              background: 'linear-gradient(45deg, oklch(0.65 0.18 230 / 0.4) 0%, oklch(0.5 0.23 250 / 0.3) 100%)',
-            }}
-          />
-          <div 
-            className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-20"
-            style={{
-              background: 'linear-gradient(225deg, oklch(0.6 0.2 250 / 0.3) 0%, transparent 100%)',
-            }}
-          />
-        </div>
-      )}
-      
-      {/* Simple dark background for result state */}
-      {appState === "result" && (
-        <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background/95" />
-      )}
-
-      {/* Header - Responsive avec espacement du haut et animations améliorées */}
+      {/* Header - Transparent */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-        className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10 mt-4 sm:mt-6 md:mt-8"
+        className="sticky top-0 z-50 mt-4 sm:mt-6 md:mt-8"
       >
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-5">
           <div className="flex items-center justify-between gap-2">
@@ -725,8 +689,8 @@ export default function HomePage() {
         croppedImage={croppedImage}
       />
 
-      {/* Footer - Responsive avec espacement du bas */}
-      <footer className="border-t border-white/10 py-6 sm:py-8 md:py-10 mt-auto mb-4 sm:mb-6 md:mb-8 liquid-ios26">
+      {/* Footer - Transparent */}
+      <footer className="py-6 sm:py-8 md:py-10 mt-auto mb-4 sm:mb-6 md:mb-8">
         <div className="container mx-auto px-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
           <p>
             Aedis — Transformez vos plans en pièces photoréalistes
