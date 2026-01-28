@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -132,72 +132,41 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background">
-      {/* iOS 26 Liquid Glass background - Abstract shapes for refraction */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        {/* Animated abstract shapes behind glass for refraction effect */}
-        <div 
-          className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse"
-          style={{
-            background: 'linear-gradient(135deg, oklch(0.6 0.2 240 / 0.4) 0%, oklch(0.5 0.25 250 / 0.3) 100%)',
-          }}
-        />
-        <div 
-          className="absolute top-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-25 animate-pulse"
-          style={{
-            background: 'linear-gradient(225deg, oklch(0.55 0.22 250 / 0.35) 0%, oklch(0.45 0.2 260 / 0.25) 100%)',
-            animationDelay: '1s',
-          }}
-        />
-        <div 
-          className="absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-30 animate-pulse"
-          style={{
-            background: 'linear-gradient(45deg, oklch(0.65 0.18 230 / 0.4) 0%, oklch(0.5 0.23 250 / 0.3) 100%)',
-            animationDelay: '2s',
-          }}
-        />
-        <div 
-          className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-20 animate-pulse"
-          style={{
-            background: 'linear-gradient(225deg, oklch(0.6 0.2 250 / 0.3) 0%, transparent 100%)',
-            animationDelay: '0.5s',
-          }}
-        />
-        
-        {/* Moving shapes for dynamic refraction */}
-        <motion.div 
-          className="absolute top-1/2 left-1/4 w-64 h-64 rounded-full blur-2xl opacity-20"
-          style={{
-            background: 'radial-gradient(circle, oklch(0.7 0.15 240 / 0.4) 0%, transparent 70%)',
-          }}
-          animate={{
-            x: [0, 50, -30, 0],
-            y: [0, -40, 30, 0],
-            scale: [1, 1.2, 0.9, 1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-1/3 right-1/4 w-56 h-56 rounded-full blur-2xl opacity-25"
-          style={{
-            background: 'radial-gradient(circle, oklch(0.65 0.2 250 / 0.5) 0%, transparent 70%)',
-          }}
-          animate={{
-            x: [0, -40, 60, 0],
-            y: [0, 50, -35, 0],
-            scale: [1, 0.8, 1.3, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-        />
-      </div>
+      {/* iOS 26 Liquid Glass background - Simplified for performance */}
+      {appState !== "result" && (
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+          {/* Static gradient shapes - no animation for better performance */}
+          <div 
+            className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.6 0.2 240 / 0.4) 0%, oklch(0.5 0.25 250 / 0.3) 100%)',
+            }}
+          />
+          <div 
+            className="absolute top-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-25"
+            style={{
+              background: 'linear-gradient(225deg, oklch(0.55 0.22 250 / 0.35) 0%, oklch(0.45 0.2 260 / 0.25) 100%)',
+            }}
+          />
+          <div 
+            className="absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-30"
+            style={{
+              background: 'linear-gradient(45deg, oklch(0.65 0.18 230 / 0.4) 0%, oklch(0.5 0.23 250 / 0.3) 100%)',
+            }}
+          />
+          <div 
+            className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-20"
+            style={{
+              background: 'linear-gradient(225deg, oklch(0.6 0.2 250 / 0.3) 0%, transparent 100%)',
+            }}
+          />
+        </div>
+      )}
+      
+      {/* Simple dark background for result state */}
+      {appState === "result" && (
+        <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background/95" />
+      )}
 
       {/* Header */}
       <header className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10">
@@ -240,7 +209,7 @@ export default function HomePage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-16">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           {/* Upload State */}
           {appState === "upload" && (
             <motion.div
@@ -419,21 +388,18 @@ export default function HomePage() {
           {appState === "result" && generatedImage && (
             <motion.div
               key="result"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="max-w-5xl mx-auto"
             >
               {/* Result Header */}
               <div className="text-center mb-8">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-ios26 text-green-500 text-sm font-medium mb-4"
-                >
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-ios26 text-green-500 text-sm font-medium mb-4">
                   <Sparkles className="w-4 h-4" />
                   Génération terminée
-                </motion.div>
+                </div>
                 <h2 className="text-3xl font-bold mb-2">Votre pièce meublée</h2>
                 {enhancedStyle && (
                   <p className="text-muted-foreground text-sm max-w-xl mx-auto">
@@ -472,16 +438,11 @@ export default function HomePage() {
               </Card>
 
               {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="flex justify-center gap-4 mt-6"
-              >
+              <div className="flex justify-center gap-4 mt-6">
                 <Button 
                   variant="outline" 
                   onClick={handleReset}
-                  className="liquid-ios26-button transition-spring"
+                  className="liquid-ios26-button"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Recommencer
@@ -492,15 +453,15 @@ export default function HomePage() {
                     if (generatedImage) {
                       const link = document.createElement("a");
                       link.href = generatedImage;
-                      link.download = "plan2shop-design.png";
+                      link.download = "hybridation-design.png";
                       link.click();
                     }
                   }}
-                  className="liquid-ios26-button transition-spring"
+                  className="liquid-ios26-button"
                 >
                   Télécharger l'image
                 </Button>
-              </motion.div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

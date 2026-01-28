@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, Suspense, useMemo } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -15,16 +15,9 @@ interface Scene360Props {
   onSelectProduct: (croppedImageBase64: string) => void;
 }
 
-interface MarkerData {
-  position: THREE.Vector3;
-  id: string;
-}
-
 interface SphereViewerProps {
   imageUrl: string;
   onSelectProduct: (croppedImageBase64: string) => void;
-  markers: MarkerData[];
-  setMarkers: React.Dispatch<React.SetStateAction<MarkerData[]>>;
   mode: ViewMode;
 }
 
@@ -32,10 +25,6 @@ interface SphereViewerProps {
 
 /**
  * Crop a region from the panoramic image based on UV coordinates.
- * @param imageUrl - The 360° equirectangular image URL (data URL or http)
- * @param uv - The UV coordinates from Three.js raycasting
- * @param cropSize - Size of the crop in pixels (default 500x500)
- * @returns Promise<string> - Base64 encoded cropped image
  */
 async function cropImageFromUV(
   imageUrl: string,
@@ -47,7 +36,6 @@ async function cropImageFromUV(
     img.crossOrigin = "anonymous";
 
     img.onload = () => {
-      // Create off-screen canvas
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
@@ -56,26 +44,18 @@ async function cropImageFromUV(
         return;
       }
 
-      // Set canvas size to crop size
       canvas.width = cropSize;
       canvas.height = cropSize;
 
-      // Calculate center pixel coordinates from UV
-      // Note: Three.js UV has Y going up, but image has Y going down
-      // So we use (1 - uv.y) to flip the Y coordinate
       const centerX = uv.x * img.width;
       const centerY = (1 - uv.y) * img.height;
 
-      // Calculate source position (top-left of crop area)
       const sourceX = centerX - cropSize / 2;
       const sourceY = centerY - cropSize / 2;
 
-      // Handle edge cases (wrap around for 360° images)
-      // For simplicity, we'll clamp to image bounds
       const clampedSourceX = Math.max(0, Math.min(sourceX, img.width - cropSize));
       const clampedSourceY = Math.max(0, Math.min(sourceY, img.height - cropSize));
 
-      // Draw the cropped region
       ctx.drawImage(
         img,
         clampedSourceX,
@@ -88,7 +68,6 @@ async function cropImageFromUV(
         cropSize
       );
 
-      // Export as base64
       const base64 = canvas.toDataURL("image/png");
       resolve(base64);
     };
@@ -101,85 +80,43 @@ async function cropImageFromUV(
   });
 }
 
-// ==================== MARKER COMPONENT ====================
-
-function ClickMarker({ position }: { position: THREE.Vector3 }) {
-  return (
-    <group position={position}>
-      {/* Outer ring for visibility */}
-      <mesh>
-        <ringGeometry args={[0.03, 0.05, 32]} />
-        <meshBasicMaterial color="#ff4444" side={THREE.DoubleSide} />
-      </mesh>
-      {/* Inner dot */}
-      <mesh>
-        <sphereGeometry args={[0.02, 16, 16]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
-      {/* Animated pulse effect */}
-      <mesh scale={[1, 1, 1]}>
-        <ringGeometry args={[0.06, 0.08, 32]} />
-        <meshBasicMaterial 
-          color="#ff4444" 
-          transparent 
-          opacity={0.5} 
-          side={THREE.DoubleSide} 
-        />
-      </mesh>
-    </group>
-  );
-}
-
 // ==================== SPHERE VIEWER COMPONENT ====================
 
-function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers, mode }: SphereViewerProps) {
+function SphereViewer({ imageUrl, onSelectProduct, mode }: SphereViewerProps) {
   const sphereRef = useRef<THREE.Mesh>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Load texture
+  // Load texture with memoization
   const texture = useLoader(THREE.TextureLoader, imageUrl);
 
-  // Configure texture for equirectangular mapping
+  // Configure texture for equirectangular mapping - only once
   useEffect(() => {
     if (texture) {
       texture.mapping = THREE.EquirectangularReflectionMapping;
       texture.colorSpace = THREE.SRGBColorSpace;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
     }
   }, [texture]);
 
   // Handle click on sphere - only in select mode
   const handleClick = useCallback(
     async (event: THREE.Event & { uv?: THREE.Vector2; point?: THREE.Vector3 }) => {
-      // Only process clicks in select mode
       if (mode !== "select") return;
-      
-      // Prevent multiple clicks while processing
       if (isProcessing) return;
 
-      // Get UV coordinates from the click event
       const uv = event.uv;
-      const point = event.point;
-
-      if (!uv || !point) {
-        console.warn("Click event missing UV or point data");
+      if (!uv) {
+        console.warn("Click event missing UV data");
         return;
       }
 
-      console.log("[Scene360] Click detected at UV:", uv, "Point:", point);
-
-      // Add visual marker at click position
-      const markerId = `marker-${Date.now()}`;
-      const markerPosition = point.clone().normalize().multiplyScalar(4.9); // Slightly inside sphere
-      setMarkers((prev) => [...prev.slice(-4), { position: markerPosition, id: markerId }]); // Keep last 5 markers
-
+      console.log("[Scene360] Click detected at UV:", uv);
       setIsProcessing(true);
 
       try {
-        // Crop the image based on UV coordinates
         const croppedImage = await cropImageFromUV(imageUrl, uv, 500);
         console.log("[Scene360] Image cropped successfully");
-
-        // Call the callback with cropped image
         onSelectProduct(croppedImage);
       } catch (error) {
         console.error("[Scene360] Failed to crop image:", error);
@@ -187,39 +124,62 @@ function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers, mode }: 
         setIsProcessing(false);
       }
     },
-    [imageUrl, onSelectProduct, isProcessing, setMarkers, mode]
+    [imageUrl, onSelectProduct, isProcessing, mode]
   );
 
-  return (
-    <>
-      {/* The 360° sphere - inverted so we view from inside */}
-      <mesh ref={sphereRef} onClick={handleClick} scale={[-1, 1, 1]}>
-        <sphereGeometry args={[5, 64, 64]} />
-        <meshBasicMaterial map={texture} side={THREE.BackSide} />
-      </mesh>
+  // Memoize geometry to prevent recreation
+  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(5, 64, 64), []);
 
-      {/* Render markers */}
-      {markers.map((marker) => (
-        <ClickMarker key={marker.id} position={marker.position} />
-      ))}
-    </>
+  return (
+    <mesh ref={sphereRef} onClick={handleClick} scale={[-1, 1, 1]} geometry={sphereGeometry}>
+      <meshBasicMaterial map={texture} side={THREE.BackSide} />
+    </mesh>
+  );
+}
+
+// ==================== LOADING FALLBACK ====================
+
+function LoadingFallback() {
+  return (
+    <mesh>
+      <sphereGeometry args={[5, 32, 32]} />
+      <meshBasicMaterial color="#1a1a2e" side={THREE.BackSide} />
+    </mesh>
   );
 }
 
 // ==================== MAIN SCENE360 COMPONENT ====================
 
 export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState<ViewMode>("navigate");
+  const [hasSelected, setHasSelected] = useState(false);
 
-  // Preload image to check if it's valid
+  // Preload image
   useEffect(() => {
     const img = new Image();
     img.onload = () => setIsLoading(false);
     img.onerror = () => setIsLoading(false);
     img.src = imageUrl;
   }, [imageUrl]);
+
+  // Handle product selection with temporary indicator
+  const handleSelectProduct = useCallback(
+    (croppedImageBase64: string) => {
+      setHasSelected(true);
+      onSelectProduct(croppedImageBase64);
+      // Reset indicator after 2 seconds
+      const timer = setTimeout(() => setHasSelected(false), 2000);
+      return () => clearTimeout(timer);
+    },
+    [onSelectProduct]
+  );
+
+  // Memoize canvas style to prevent re-renders
+  const canvasStyle = useMemo(() => ({ 
+    background: "#0a0a0f",
+    cursor: mode === "select" ? "crosshair" : "grab"
+  }), [mode]);
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-black/20">
@@ -263,7 +223,7 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
 
       {/* Mode instructions */}
       <div className="absolute top-4 right-4 z-20 pointer-events-none">
-        <div className={`px-3 py-1.5 rounded-full backdrop-blur-sm text-xs ${
+        <div className={`px-3 py-1.5 rounded-full backdrop-blur-sm text-xs transition-colors ${
           mode === "navigate" 
             ? "bg-black/60 text-white" 
             : "bg-primary/80 text-white"
@@ -274,7 +234,7 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       </div>
 
-      {/* Three.js Canvas */}
+      {/* Three.js Canvas with performance optimizations */}
       <Canvas
         camera={{
           fov: 75,
@@ -282,24 +242,23 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           near: 0.1,
           far: 1000,
         }}
-        style={{ 
-          background: "#000",
-          cursor: mode === "select" ? "crosshair" : "grab"
+        style={canvasStyle}
+        dpr={[1, 1.5]}
+        performance={{ min: 0.5 }}
+        gl={{ 
+          antialias: false,
+          powerPreference: "high-performance",
         }}
       >
-        {/* Ambient light for basic visibility */}
-        <ambientLight intensity={1} />
+        <Suspense fallback={<LoadingFallback />}>
+          <SphereViewer
+            imageUrl={imageUrl}
+            onSelectProduct={handleSelectProduct}
+            mode={mode}
+          />
+        </Suspense>
 
-        {/* The 360° panorama viewer */}
-        <SphereViewer
-          imageUrl={imageUrl}
-          onSelectProduct={onSelectProduct}
-          markers={markers}
-          setMarkers={setMarkers}
-          mode={mode}
-        />
-
-        {/* Orbit controls for navigation - disabled in select mode */}
+        {/* Orbit controls for navigation */}
         <OrbitControls
           enabled={mode === "navigate"}
           enableZoom={true}
@@ -309,12 +268,14 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           minDistance={0.1}
           maxDistance={4}
           target={[0, 0, 0]}
+          enableDamping={true}
+          dampingFactor={0.05}
         />
       </Canvas>
 
-      {/* Click indicator */}
-      {markers.length > 0 && (
-        <div className="absolute bottom-4 right-4 z-10">
+      {/* Selection feedback indicator */}
+      {hasSelected && (
+        <div className="absolute bottom-4 right-4 z-10 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="px-3 py-1.5 rounded-full bg-green-500/80 backdrop-blur-sm text-white text-xs">
             ✓ Sélection envoyée
           </div>
