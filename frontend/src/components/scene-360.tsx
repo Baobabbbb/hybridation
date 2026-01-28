@@ -89,13 +89,17 @@ function SphereViewer({ imageUrl, onSelectProduct, mode }: SphereViewerProps) {
   // Load texture with memoization
   const texture = useLoader(THREE.TextureLoader, imageUrl);
 
-  // Configure texture for equirectangular mapping - only once
+  // Configure texture for equirectangular mapping with high quality settings
   useEffect(() => {
     if (texture) {
       texture.mapping = THREE.EquirectangularReflectionMapping;
       texture.colorSpace = THREE.SRGBColorSpace;
-      texture.minFilter = THREE.LinearFilter;
+      // High quality filters for better image quality
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
+      texture.anisotropy = 16; // Maximum anisotropic filtering for sharper textures
+      texture.needsUpdate = true;
     }
   }, [texture]);
 
@@ -127,8 +131,8 @@ function SphereViewer({ imageUrl, onSelectProduct, mode }: SphereViewerProps) {
     [imageUrl, onSelectProduct, isProcessing, mode]
   );
 
-  // Memoize geometry to prevent recreation
-  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(5, 64, 64), []);
+  // Memoize geometry with high resolution for better quality
+  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(5, 128, 128), []);
 
   return (
     <mesh ref={sphereRef} onClick={handleClick} scale={[-1, 1, 1]} geometry={sphereGeometry}>
@@ -234,7 +238,7 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       </div>
 
-      {/* Three.js Canvas with performance optimizations */}
+      {/* Three.js Canvas with quality settings */}
       <Canvas
         camera={{
           fov: 75,
@@ -243,11 +247,11 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           far: 1000,
         }}
         style={canvasStyle}
-        dpr={[1, 1.5]}
-        performance={{ min: 0.5 }}
+        dpr={[1, 2]}
         gl={{ 
-          antialias: false,
+          antialias: true,
           powerPreference: "high-performance",
+          preserveDrawingBuffer: true,
         }}
       >
         <Suspense fallback={<LoadingFallback />}>
