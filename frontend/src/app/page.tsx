@@ -22,14 +22,14 @@ import { generateFurnishedRoom, searchProducts, type Product } from "@/lib/api";
 
 type AppState = "upload" | "generating" | "result";
 
-// Predefined style suggestions
+// Suggestions de styles prédéfinis
 const STYLE_SUGGESTIONS = [
-  "Modern minimalist",
-  "Scandinavian cozy",
-  "Industrial loft",
-  "Bohemian eclectic",
-  "Japanese zen",
-  "Art deco luxury",
+  "Minimaliste moderne",
+  "Scandinave cosy",
+  "Loft industriel",
+  "Bohème éclectique",
+  "Zen japonais",
+  "Luxe art déco",
 ];
 
 export default function HomePage() {
@@ -60,7 +60,7 @@ export default function HomePage() {
   // Handle generation
   const handleGenerate = useCallback(async () => {
     if (!selectedFile || !style.trim()) {
-      toast.error("Please upload a floor plan and enter a style");
+      toast.error("Veuillez télécharger un plan et entrer un style");
       return;
     }
 
@@ -71,11 +71,11 @@ export default function HomePage() {
       setGeneratedImage(response.image);
       setEnhancedStyle(response.enhanced_style);
       setAppState("result");
-      toast.success("Room generated successfully!");
+      toast.success("Pièce générée avec succès !");
     } catch (error) {
       console.error("Generation failed:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to generate room"
+        error instanceof Error ? error.message : "Échec de la génération"
       );
       setAppState("upload");
     }
@@ -95,7 +95,7 @@ export default function HomePage() {
     } catch (error) {
       console.error("Search failed:", error);
       setSearchError(
-        error instanceof Error ? error.message : "Failed to search products"
+        error instanceof Error ? error.message : "Échec de la recherche de produits"
       );
     } finally {
       setIsSearching(false);
@@ -136,7 +136,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight">Plan2Shop</h1>
-                <p className="text-xs text-muted-foreground">AI Interior Design</p>
+                <p className="text-xs text-muted-foreground">Design d'intérieur IA</p>
               </div>
             </motion.div>
 
@@ -147,7 +147,7 @@ export default function HomePage() {
               >
                 <Button variant="outline" size="sm" onClick={handleReset}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  New Design
+                  Nouveau design
                 </Button>
               </motion.div>
             )}
@@ -177,7 +177,7 @@ export default function HomePage() {
                   className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
                 >
                   <Sparkles className="w-4 h-4" />
-                  AI-Powered Interior Design
+                  Design d'intérieur propulsé par l'IA
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 10 }}
@@ -185,9 +185,9 @@ export default function HomePage() {
                   transition={{ delay: 0.2 }}
                   className="text-4xl md:text-5xl font-bold tracking-tight mb-4"
                 >
-                  Transform Your
+                  Transformez vos
                   <br />
-                  <span className="text-primary">Floor Plans</span>
+                  <span className="text-primary">plans architecturaux</span>
                 </motion.h2>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -195,8 +195,8 @@ export default function HomePage() {
                   transition={{ delay: 0.3 }}
                   className="text-lg text-muted-foreground max-w-md mx-auto"
                 >
-                  Upload your architectural plan and watch AI transform it into
-                  a photorealistic furnished room
+                  Téléchargez votre plan architectural et regardez l'IA le transformer en
+                  une pièce meublée photoréaliste
                 </motion.p>
               </div>
 
@@ -213,10 +213,10 @@ export default function HomePage() {
                   {/* Style Input */}
                   <div className="space-y-3">
                     <label className="text-sm font-medium text-foreground">
-                      Design Style
+                      Style de design
                     </label>
                     <Input
-                      placeholder="Describe your desired style... (e.g., Modern minimalist with warm tones)"
+                      placeholder="Décrivez le style souhaité... (ex: Minimaliste moderne avec tons chauds)"
                       value={style}
                       onChange={(e) => setStyle(e.target.value)}
                       className="h-12"
@@ -245,7 +245,7 @@ export default function HomePage() {
                     disabled={!selectedFile || !style.trim()}
                   >
                     <Wand2 className="w-5 h-5 mr-2" />
-                    Magic Generate
+                    Générer
                   </Button>
                 </CardContent>
               </Card>
@@ -258,9 +258,9 @@ export default function HomePage() {
                 className="mt-12 grid grid-cols-3 gap-4 text-center"
               >
                 {[
-                  { icon: "✨", label: "AI-Powered" },
-                  { icon: "🎨", label: "Any Style" },
-                  { icon: "🛒", label: "Shop Items" },
+                  { icon: "✨", label: "Propulsé par l'IA" },
+                  { icon: "🎨", label: "Tous les styles" },
+                  { icon: "🛒", label: "Acheter" },
                 ].map((feature) => (
                   <div key={feature.label} className="p-4">
                     <div className="text-2xl mb-2">{feature.icon}</div>
@@ -293,17 +293,17 @@ export default function HomePage() {
                 }}
                 className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-primary/20 border-t-primary"
               />
-              <h3 className="text-2xl font-bold mb-2">Creating Your Room</h3>
+              <h3 className="text-2xl font-bold mb-2">Création de votre pièce</h3>
               <p className="text-muted-foreground mb-8">
-                AI is transforming your floor plan into a photorealistic design...
+                L'IA transforme votre plan en un design photoréaliste...
               </p>
 
               {/* Progress steps */}
               <div className="space-y-3 text-left max-w-xs mx-auto">
                 {[
-                  "Analyzing floor plan structure",
-                  "Enhancing style prompt",
-                  "Generating photorealistic room",
+                  "Analyse de la structure du plan",
+                  "Amélioration du prompt de style",
+                  "Génération de la pièce photoréaliste",
                 ].map((step, i) => (
                   <motion.div
                     key={step}
@@ -345,12 +345,12 @@ export default function HomePage() {
                   className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-sm font-medium mb-4"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Generation Complete
+                  Génération terminée
                 </motion.div>
-                <h2 className="text-3xl font-bold mb-2">Your Furnished Room</h2>
+                <h2 className="text-3xl font-bold mb-2">Votre pièce meublée</h2>
                 {enhancedStyle && (
                   <p className="text-muted-foreground text-sm max-w-xl mx-auto">
-                    Style: {enhancedStyle}
+                    Style : {enhancedStyle}
                   </p>
                 )}
               </div>
@@ -360,7 +360,7 @@ export default function HomePage() {
                 <CardContent className="p-4 md:p-6">
                   <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <ShoppingCart className="w-4 h-4" />
-                    <span>Click and drag to select a furniture piece to shop</span>
+                    <span>Cliquez et glissez pour sélectionner un meuble à acheter</span>
                   </div>
                   <ImageCropper
                     imageSrc={generatedImage}
@@ -378,7 +378,7 @@ export default function HomePage() {
               >
                 <Button variant="outline" onClick={handleReset}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Start Over
+                  Recommencer
                 </Button>
                 <Button
                   variant="default"
@@ -391,7 +391,7 @@ export default function HomePage() {
                     }
                   }}
                 >
-                  Download Image
+                  Télécharger l'image
                 </Button>
               </motion.div>
             </motion.div>
@@ -413,7 +413,7 @@ export default function HomePage() {
       <footer className="border-t border-border/50 py-6 mt-auto">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
-            Plan2Shop AI — Transform floor plans into photorealistic rooms
+            Plan2Shop AI — Transformez vos plans en pièces photoréalistes
           </p>
         </div>
       </footer>

@@ -125,14 +125,13 @@ export function UploadDropzone({
                   />
                 </motion.div>
                 <p className="mb-2 text-sm text-foreground">
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
+                  <span className="font-semibold">Cliquez pour télécharger</span> ou glissez-déposez
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  PNG, JPG or WEBP (max. 10MB)
+                  PNG, JPG ou WEBP (max. 10 Mo)
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground/70">
-                  Upload your 2D architectural floor plan
+                  Téléchargez votre plan architectural 2D
                 </p>
               </motion.div>
             </label>
@@ -149,7 +148,7 @@ export function UploadDropzone({
             {preview && (
               <img
                 src={preview}
-                alt="Floor plan preview"
+                alt="Aperçu du plan"
                 className="w-full h-full object-contain"
               />
             )}

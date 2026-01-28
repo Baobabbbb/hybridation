@@ -14,10 +14,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Plan2Shop AI | Transform Floor Plans into Reality",
+  title: "Plan2Shop AI | Transformez vos plans en réalité",
   description:
-    "Upload your architectural floor plan and watch AI transform it into a photorealistic furnished room. Click on any furniture to find real products to buy.",
-  keywords: ["AI", "interior design", "floor plan", "furniture", "shopping", "home decor"],
+    "Téléchargez votre plan architectural et regardez l'IA le transformer en une pièce meublée photoréaliste. Cliquez sur n'importe quel meuble pour trouver de vrais produits à acheter.",
+  keywords: ["IA", "design d'intérieur", "plan architectural", "meubles", "achat", "décoration"],
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="fr" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >

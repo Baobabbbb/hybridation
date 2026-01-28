@@ -37,10 +37,10 @@ export function ProductSheet({
         <SheetHeader className="mb-6">
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5" />
-            Similar Products
+            Produits similaires
           </SheetTitle>
           <SheetDescription>
-            Found {isLoading ? "..." : products.length} matching products
+            {isLoading ? "Recherche..." : `${products.length} produit${products.length > 1 ? 's' : ''} correspondant${products.length > 1 ? 's' : ''} trouvé${products.length > 1 ? 's' : ''}`}
           </SheetDescription>
         </SheetHeader>
 
@@ -51,10 +51,10 @@ export function ProductSheet({
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 p-3 rounded-lg bg-muted"
           >
-            <p className="text-xs text-muted-foreground mb-2">Searching for:</p>
+            <p className="text-xs text-muted-foreground mb-2">Recherche de :</p>
             <img
               src={croppedImage}
-              alt="Selected furniture"
+              alt="Meuble sélectionné"
               className="w-full max-h-32 object-contain rounded-md"
             />
           </motion.div>
@@ -112,7 +112,7 @@ export function ProductSheet({
               <Package className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground">
-              No matching products found. Try selecting a different item.
+              Aucun produit correspondant trouvé. Essayez de sélectionner un autre élément.
             </p>
           </motion.div>
         )}
@@ -171,7 +171,7 @@ export function ProductSheet({
                               rel="noopener noreferrer"
                             >
                               <ExternalLink className="w-3 h-3 mr-1" />
-                              View
+                              Voir
                             </a>
                           </Button>
                         </div>
