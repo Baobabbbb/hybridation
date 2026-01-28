@@ -1,5 +1,5 @@
 """
-Hybridation - Backend API
+Aedis - Backend API
 FastAPI server for 360° panoramic image generation and visual shopping search.
 With automatic fallback from Gemini to OpenAI when servers are overloaded.
 """
@@ -31,7 +31,7 @@ load_dotenv(dotenv_path=env_path, override=True)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Hybridation API",
+    title="Aedis API",
     description="Transform architectural plans into 360° panoramic furnished rooms",
     version="2.0.0"
 )
@@ -212,7 +212,7 @@ Make it photorealistic, suitable for VR/360° viewing experiences."""
 @app.get("/")
 async def root():
     """Health check endpoint."""
-    return {"status": "ok", "service": "Hybridation API", "version": "2.0.0"}
+    return {"status": "ok", "service": "Aedis API", "version": "2.0.0"}
 
 
 @app.post("/generate")
@@ -612,7 +612,7 @@ async def health_check():
     """Detailed health check for Railway deployment."""
     return {
         "status": "healthy",
-        "service": "Hybridation API",
+        "service": "Aedis API",
         "version": "2.0.0",
         "features": {
             "360_panorama": True,

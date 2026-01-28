@@ -1,6 +1,6 @@
 # Guide de Déploiement Railway
 
-Ce guide vous explique étape par étape comment déployer Plan2Shop AI sur Railway.
+Ce guide vous explique étape par étape comment déployer Aedis sur Railway.
 
 ## 📋 Prérequis
 
@@ -166,4 +166,4 @@ NEXT_PUBLIC_API_URL=https://votre-backend-url.railway.app
 
 ## 🎉 C'est fait !
 
-Votre application Plan2Shop AI est maintenant déployée sur Railway et accessible publiquement !
+Votre application Aedis est maintenant déployée sur Railway et accessible publiquement !

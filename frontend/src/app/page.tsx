@@ -182,7 +182,7 @@ export default function HomePage() {
                 <Home className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight liquid-text">Hybridation</h1>
+                <h1 className="text-xl font-bold tracking-tight liquid-text">Aedis</h1>
                 <p className="text-xs liquid-text-muted">Design d'intérieur IA</p>
               </div>
             </motion.div>
@@ -453,7 +453,7 @@ export default function HomePage() {
                     if (generatedImage) {
                       const link = document.createElement("a");
                       link.href = generatedImage;
-                      link.download = "hybridation-design.png";
+                      link.download = "aedis-design.png";
                       link.click();
                     }
                   }}
@@ -481,7 +481,7 @@ export default function HomePage() {
       <footer className="border-t border-white/10 py-6 mt-auto liquid-ios26">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
-            Hybridation — Transformez vos plans en pièces photoréalistes
+            Aedis — Transformez vos plans en pièces photoréalistes
           </p>
         </div>
       </footer>

@@ -1,4 +1,4 @@
-# Plan2Shop AI
+# Aedis
 
 Transform architectural floor plans into photorealistic furnished rooms using AI, then find real products to buy.
 

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hybridation | Transformez vos plans en réalité",
+  title: "Aedis | Transformez vos plans en réalité",
   description:
     "Téléchargez votre plan architectural et regardez l'IA le transformer en une pièce meublée photoréaliste. Cliquez sur n'importe quel meuble pour trouver de vrais produits à acheter.",
   keywords: ["IA", "design d'intérieur", "plan architectural", "meubles", "achat", "décoration"],
