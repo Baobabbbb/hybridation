@@ -121,27 +121,27 @@ export default function HomePage() {
         <div 
           className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse"
           style={{
-            background: 'linear-gradient(135deg, oklch(0.6 0.2 260 / 0.4) 0%, oklch(0.5 0.25 300 / 0.3) 100%)',
+            background: 'linear-gradient(135deg, oklch(0.6 0.2 240 / 0.4) 0%, oklch(0.5 0.25 250 / 0.3) 100%)',
           }}
         />
         <div 
           className="absolute top-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-25 animate-pulse"
           style={{
-            background: 'linear-gradient(225deg, oklch(0.55 0.22 280 / 0.35) 0%, oklch(0.45 0.2 320 / 0.25) 100%)',
+            background: 'linear-gradient(225deg, oklch(0.55 0.22 250 / 0.35) 0%, oklch(0.45 0.2 260 / 0.25) 100%)',
             animationDelay: '1s',
           }}
         />
         <div 
           className="absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-30 animate-pulse"
           style={{
-            background: 'linear-gradient(45deg, oklch(0.65 0.18 240 / 0.4) 0%, oklch(0.5 0.23 290 / 0.3) 100%)',
+            background: 'linear-gradient(45deg, oklch(0.65 0.18 230 / 0.4) 0%, oklch(0.5 0.23 250 / 0.3) 100%)',
             animationDelay: '2s',
           }}
         />
         <div 
           className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-20 animate-pulse"
           style={{
-            background: 'linear-gradient(225deg, oklch(0.6 0.2 270 / 0.3) 0%, transparent 100%)',
+            background: 'linear-gradient(225deg, oklch(0.6 0.2 250 / 0.3) 0%, transparent 100%)',
             animationDelay: '0.5s',
           }}
         />
@@ -150,7 +150,7 @@ export default function HomePage() {
         <motion.div 
           className="absolute top-1/2 left-1/4 w-64 h-64 rounded-full blur-2xl opacity-20"
           style={{
-            background: 'radial-gradient(circle, oklch(0.7 0.15 250 / 0.4) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, oklch(0.7 0.15 240 / 0.4) 0%, transparent 70%)',
           }}
           animate={{
             x: [0, 50, -30, 0],
@@ -166,7 +166,7 @@ export default function HomePage() {
         <motion.div 
           className="absolute bottom-1/3 right-1/4 w-56 h-56 rounded-full blur-2xl opacity-25"
           style={{
-            background: 'radial-gradient(circle, oklch(0.65 0.2 300 / 0.5) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, oklch(0.65 0.2 250 / 0.5) 0%, transparent 70%)',
           }}
           animate={{
             x: [0, -40, 60, 0],
@@ -196,7 +196,7 @@ export default function HomePage() {
                 <Home className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight liquid-text">Plan2Shop</h1>
+                <h1 className="text-xl font-bold tracking-tight liquid-text">Hybridation</h1>
                 <p className="text-xs liquid-text-muted">Design d'intérieur IA</p>
               </div>
             </motion.div>
@@ -488,7 +488,7 @@ export default function HomePage() {
       <footer className="border-t border-white/10 py-6 mt-auto liquid-ios26">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
-            Plan2Shop AI — Transformez vos plans en pièces photoréalistes
+            Hybridation — Transformez vos plans en pièces photoréalistes
           </p>
         </div>
       </footer>

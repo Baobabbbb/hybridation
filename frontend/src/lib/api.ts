@@ -1,5 +1,5 @@
 /**
- * API client for Plan2Shop AI backend
+ * API client for Hybridation backend
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
