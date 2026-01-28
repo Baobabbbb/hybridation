@@ -132,25 +132,25 @@
     --fluid-accent-3: oklch(0.75 0.18 230);
   }
 
-  /* iOS 26 Liquid Glass Card Component - Enhanced */
+  /* iOS 26 Liquid Glass Card Component - Ultra Enhanced */
   .liquid-ios26 {
     position: relative;
-    /* Surface with mixed gradients for curvature simulation (Bleu) */
+    /* Surface with mixed gradients for curvature simulation (Bleu) - More visible */
     background: 
-      linear-gradient(135deg, oklch(0.25 0.02 240 / 0.45) 0%, oklch(0.22 0.03 250 / 0.35) 100%),
-      radial-gradient(circle at 30% 20%, oklch(0.28 0.04 245 / 0.55) 0%, transparent 50%),
-      radial-gradient(circle at 70% 80%, oklch(0.26 0.03 250 / 0.3) 0%, transparent 50%);
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
-    border-radius: 36px;
+      linear-gradient(135deg, oklch(0.26 0.03 240 / 0.55) 0%, oklch(0.23 0.04 250 / 0.45) 100%),
+      radial-gradient(circle at 30% 20%, oklch(0.3 0.05 245 / 0.65) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, oklch(0.27 0.04 250 / 0.4) 0%, transparent 50%);
+    backdrop-filter: blur(32px) saturate(220%);
+    -webkit-backdrop-filter: blur(32px) saturate(220%);
+    border-radius: 40px;
     border: none;
-    /* Meniscus border with surface tension effect - Enhanced */
+    /* Meniscus border with surface tension effect - More pronounced */
     box-shadow: 
-      inset 0 1px 0 0.5px oklch(1 0 0 / 0.8),
-      inset 0 -1px 3px 0 oklch(0 0 0 / 0.15),
-      0 20px 50px -12px oklch(0.2 0.06 240 / 0.35),
-      0 8px 24px -8px oklch(0.15 0.04 250 / 0.25),
-      0 0 0 1px oklch(1 0 0 / 0.12);
+      inset 0 1.5px 0 0.5px oklch(1 0 0 / 0.9),
+      inset 0 -1.5px 4px 0 oklch(0 0 0 / 0.2),
+      0 24px 60px -15px oklch(0.22 0.07 240 / 0.4),
+      0 12px 32px -10px oklch(0.18 0.05 250 / 0.3),
+      0 0 0 1.5px oklch(1 0 0 / 0.15);
     transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     overflow: hidden;
     will-change: transform, box-shadow, border-radius;
@@ -176,18 +176,18 @@
     opacity: 0.6;
   }
 
-  /* Animated glare spot - Enhanced */
+  /* Animated glare spot - Ultra Enhanced */
   .liquid-ios26::after {
     content: '';
     position: absolute;
     top: 15%;
     left: 25%;
-    width: 140px;
-    height: 140px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
-    background: radial-gradient(circle, oklch(1 0 0 / 0.5) 0%, oklch(0.7 0.2 240 / 0.2) 40%, transparent 70%);
-    filter: blur(24px);
-    animation: glare-move 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background: radial-gradient(circle, oklch(1 0 0 / 0.6) 0%, oklch(0.7 0.2 240 / 0.3) 35%, transparent 70%);
+    filter: blur(28px);
+    animation: glare-move 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     pointer-events: none;
     will-change: transform, opacity;
   }
@@ -195,53 +195,53 @@
   @keyframes glare-move {
     0%, 100% { 
       transform: translate(0, 0) scale(1); 
-      opacity: 0.5; 
-    }
-    25% { 
-      transform: translate(40px, 30px) scale(1.3); 
-      opacity: 0.7; 
-    }
-    50% { 
-      transform: translate(-30px, 50px) scale(0.95); 
-      opacity: 0.4; 
-    }
-    75% { 
-      transform: translate(50px, -15px) scale(1.15); 
       opacity: 0.6; 
     }
+    25% { 
+      transform: translate(50px, 40px) scale(1.4); 
+      opacity: 0.8; 
+    }
+    50% { 
+      transform: translate(-40px, 60px) scale(0.9); 
+      opacity: 0.5; 
+    }
+    75% { 
+      transform: translate(60px, -20px) scale(1.2); 
+      opacity: 0.7; 
+    }
   }
 
-  /* Morphing hover effect - liquid container changing shape - Enhanced */
+  /* Morphing hover effect - liquid container changing shape - Ultra Enhanced */
   .liquid-ios26:hover {
-    border-radius: 34px 38px 35px 37px;
-    transform: translateY(-6px) scale(1.015);
+    border-radius: 38px 42px 39px 41px;
+    transform: translateY(-8px) scale(1.02);
     box-shadow: 
-      inset 0 1px 0 0.5px oklch(1 0 0 / 0.9),
-      inset 0 -1px 4px 0 oklch(0 0 0 / 0.2),
-      0 28px 60px -15px oklch(0.2 0.06 260 / 0.45),
-      0 12px 32px -10px oklch(0.15 0.05 250 / 0.3),
-      0 0 0 1px oklch(1 0 0 / 0.18);
+      inset 0 1.5px 0 0.5px oklch(1 0 0 / 0.95),
+      inset 0 -1.5px 5px 0 oklch(0 0 0 / 0.25),
+      0 32px 70px -18px oklch(0.22 0.08 260 / 0.5),
+      0 16px 40px -12px oklch(0.18 0.06 250 / 0.35),
+      0 0 0 1.5px oklch(1 0 0 / 0.2);
     background: 
-      linear-gradient(135deg, oklch(0.27 0.025 240 / 0.5) 0%, oklch(0.24 0.035 250 / 0.4) 100%),
-      radial-gradient(circle at 30% 20%, oklch(0.3 0.05 245 / 0.6) 0%, transparent 50%),
-      radial-gradient(circle at 70% 80%, oklch(0.28 0.035 250 / 0.35) 0%, transparent 50%);
+      linear-gradient(135deg, oklch(0.29 0.035 240 / 0.6) 0%, oklch(0.26 0.045 250 / 0.5) 100%),
+      radial-gradient(circle at 30% 20%, oklch(0.32 0.06 245 / 0.7) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, oklch(0.3 0.045 250 / 0.45) 0%, transparent 50%);
   }
 
-  /* Strong variant for header/sidebar - Enhanced */
+  /* Strong variant for header/sidebar - Ultra Enhanced */
   .liquid-ios26-strong {
     background: 
-      linear-gradient(135deg, oklch(0.28 0.035 240 / 0.55) 0%, oklch(0.25 0.045 250 / 0.45) 100%),
-      radial-gradient(circle at 40% 30%, oklch(0.3 0.055 245 / 0.65) 0%, transparent 60%),
-      radial-gradient(circle at 60% 70%, oklch(0.27 0.04 250 / 0.35) 0%, transparent 60%);
-    backdrop-filter: blur(36px) saturate(220%);
-    -webkit-backdrop-filter: blur(36px) saturate(220%);
-    border-radius: 32px;
+      linear-gradient(135deg, oklch(0.29 0.04 240 / 0.6) 0%, oklch(0.26 0.05 250 / 0.5) 100%),
+      radial-gradient(circle at 40% 30%, oklch(0.32 0.06 245 / 0.7) 0%, transparent 60%),
+      radial-gradient(circle at 60% 70%, oklch(0.29 0.05 250 / 0.4) 0%, transparent 60%);
+    backdrop-filter: blur(40px) saturate(240%);
+    -webkit-backdrop-filter: blur(40px) saturate(240%);
+    border-radius: 36px;
     box-shadow: 
-      inset 0 1px 0 0.5px oklch(1 0 0 / 0.85),
-      inset 0 -1px 4px 0 oklch(0 0 0 / 0.15),
-      0 22px 50px -12px oklch(0.2 0.06 240 / 0.4),
-      0 10px 28px -8px oklch(0.15 0.05 250 / 0.3),
-      0 0 0 1px oklch(1 0 0 / 0.15);
+      inset 0 1.5px 0 0.5px oklch(1 0 0 / 0.9),
+      inset 0 -1.5px 5px 0 oklch(0 0 0 / 0.2),
+      0 26px 58px -14px oklch(0.22 0.07 240 / 0.45),
+      0 12px 32px -10px oklch(0.18 0.06 250 / 0.35),
+      0 0 0 1.5px oklch(1 0 0 / 0.18);
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
@@ -249,23 +249,23 @@
     opacity: 0.7;
   }
 
-  /* Button variant - Enhanced */
+  /* Button variant - Ultra Enhanced */
   .liquid-ios26-button {
     position: relative;
     background: 
-      linear-gradient(135deg, oklch(0.3 0.045 240 / 0.4) 0%, oklch(0.27 0.055 250 / 0.35) 100%),
-      radial-gradient(circle at 50% 50%, oklch(0.32 0.065 245 / 0.45) 0%, transparent 70%),
-      radial-gradient(circle at 20% 80%, oklch(0.29 0.05 250 / 0.25) 0%, transparent 60%);
-    backdrop-filter: blur(20px) saturate(200%);
-    -webkit-backdrop-filter: blur(20px) saturate(200%);
-    border-radius: 28px;
+      linear-gradient(135deg, oklch(0.31 0.05 240 / 0.5) 0%, oklch(0.28 0.06 250 / 0.45) 100%),
+      radial-gradient(circle at 50% 50%, oklch(0.33 0.07 245 / 0.55) 0%, transparent 70%),
+      radial-gradient(circle at 20% 80%, oklch(0.3 0.055 250 / 0.35) 0%, transparent 60%);
+    backdrop-filter: blur(24px) saturate(220%);
+    -webkit-backdrop-filter: blur(24px) saturate(220%);
+    border-radius: 32px;
     border: none;
     box-shadow: 
-      inset 0 1px 0 0.5px oklch(1 0 0 / 0.7),
-      inset 0 -1px 3px 0 oklch(0 0 0 / 0.12),
-      0 10px 28px -8px oklch(0.2 0.06 240 / 0.3),
-      0 4px 16px -4px oklch(0.15 0.05 250 / 0.2),
-      0 0 0 1px oklch(1 0 0 / 0.1);
+      inset 0 1.5px 0 0.5px oklch(1 0 0 / 0.8),
+      inset 0 -1.5px 4px 0 oklch(0 0 0 / 0.15),
+      0 12px 32px -10px oklch(0.22 0.07 240 / 0.35),
+      0 6px 20px -6px oklch(0.18 0.06 250 / 0.25),
+      0 0 0 1.5px oklch(1 0 0 / 0.12);
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform, box-shadow, border-radius;
   }
@@ -275,18 +275,18 @@
   }
 
   .liquid-ios26-button:hover {
-    border-radius: 26px 30px 27px 29px;
-    transform: translateY(-3px) scale(1.03);
+    border-radius: 30px 34px 31px 33px;
+    transform: translateY(-4px) scale(1.04);
     box-shadow: 
-      inset 0 1px 0 0.5px oklch(1 0 0 / 0.8),
-      inset 0 -1px 4px 0 oklch(0 0 0 / 0.15),
-      0 16px 40px -10px oklch(0.2 0.06 240 / 0.4),
-      0 8px 24px -6px oklch(0.15 0.05 250 / 0.3),
-      0 0 0 1px oklch(1 0 0 / 0.15);
+      inset 0 1.5px 0 0.5px oklch(1 0 0 / 0.9),
+      inset 0 -1.5px 5px 0 oklch(0 0 0 / 0.2),
+      0 20px 48px -12px oklch(0.22 0.08 240 / 0.45),
+      0 10px 28px -8px oklch(0.18 0.07 250 / 0.35),
+      0 0 0 1.5px oklch(1 0 0 / 0.18);
     background: 
-      linear-gradient(135deg, oklch(0.32 0.05 240 / 0.45) 0%, oklch(0.29 0.06 250 / 0.4) 100%),
-      radial-gradient(circle at 50% 50%, oklch(0.34 0.07 245 / 0.5) 0%, transparent 70%),
-      radial-gradient(circle at 20% 80%, oklch(0.31 0.055 250 / 0.3) 0%, transparent 60%);
+      linear-gradient(135deg, oklch(0.33 0.055 240 / 0.55) 0%, oklch(0.3 0.065 250 / 0.5) 100%),
+      radial-gradient(circle at 50% 50%, oklch(0.35 0.08 245 / 0.6) 0%, transparent 70%),
+      radial-gradient(circle at 20% 80%, oklch(0.32 0.06 250 / 0.4) 0%, transparent 60%);
   }
 
   .liquid-ios26-button:active {
@@ -344,15 +344,16 @@
     transform: translateY(-1px);
   }
 
-  /* Typography - Enhanced engraved effect */
+  /* Typography - Ultra Enhanced engraved effect */
   .liquid-text {
-    color: oklch(0.98 0 0);
+    color: oklch(1 0 0);
     text-shadow: 
-      0 1px 2px oklch(1 0 0 / 0.5),
-      0 -1px 3px oklch(0 0 0 / 0.4),
-      0 0 8px oklch(0.6 0.15 240 / 0.1);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+      0 2px 4px oklch(1 0 0 / 0.6),
+      0 -1px 4px oklch(0 0 0 / 0.5),
+      0 0 12px oklch(0.65 0.18 240 / 0.15),
+      0 1px 0 oklch(1 0 0 / 0.3);
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   .liquid-text-muted {
