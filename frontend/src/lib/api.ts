@@ -8,15 +8,18 @@ export interface GenerateResponse {
   success: boolean;
   image: string;
   enhanced_style: string;
+  provider?: string;
+  format?: string; // "equirectangular_360" for 360° panoramic images
 }
 
 export interface Product {
   title: string;
   price: number | string;
-  currency: string;
-  image: string;
+  currency?: string;
+  image?: string;
+  thumbnail?: string; // Backend returns thumbnail instead of image
   link: string;
-  source: string;
+  source?: string;
 }
 
 export interface ShopResponse {

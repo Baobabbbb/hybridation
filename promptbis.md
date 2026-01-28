@@ -1,52 +1,42 @@
 @agents.md
 
 # Role
-Act as a **Senior Python Backend Engineer** specializing in Generative AI APIs.
-
-# Context
-The Frontend is already built. We only need to implement the **Backend logic** in `main.py`.
-The goal is to serve a "Plan2Shop" application where users upload a floor plan, get a 360° panoramic furnished image, and can shop for items visible in that image.
+Act as a **Senior Frontend Engineer** expert in Three.js and Canvas manipulation.
 
 # Task
-Rewrite (or Implement) `backend/main.py` using **FastAPI**.
+Upgrade the `Scene360` component to implement the "Click-to-Crop" feature for visual search.
 
-# Requirements & Logic
+# Objective
+When the user clicks anywhere on the 3D sphere (the furniture), we must extract a cropped image of that specific area to send it to the Visual Search API.
 
-## 1. Setup & Config
-- Use `fastapi`, `uvicorn`, `python-multipart`.
-- Configure **CORS** allowing `["*"]` (or specifically `http://localhost:3000`) to ensure the existing Frontend can connect.
-- Load environment variables `GOOGLE_API_KEY` and `SERPAPI_API_KEY` using `python-dotenv`.
+# Technical Implementation Steps
 
-## 2. Endpoint: POST /generate (The 360° Decorator)
-- **Input:** Accepts a file (`UploadFile`) + a text field (`prompt`).
-- **AI Model:** Use `google-genai` SDK with the model `gemini-3-pro-image-preview` (or compatible latest vision model).
-- **Critical Prompt Engineering:** You must intercept the user's prompt and wrap it.
-  - *System Instruction:* "You are an expert interior designer. Generate a high-resolution **360-degree equirectangular projection** of the room. The image must be seamless, with a 2:1 aspect ratio, suitable for a VR sphere viewer."
-  - *User Prompt:* Combine this with the user's style request (e.g., "Industrial style...").
-- **Output:** Return the generated image (base64 encoded or URL).
+## 1. Interaction Logic (Raycasting)
+- Add an `onClick` event handler to the `<Sphere>` mesh.
+- From the event object, extract the `uv` coordinates (`e.uv`).
+  - `u` corresponds to the X axis of the texture.
+  - `v` corresponds to the Y axis of the texture.
+- Add a visual feedback: Place a small distinct "Marker" (like a small red sphere or a pin icon) at the exact `point` of the click to show the user what they selected.
 
-## 3. Endpoint: POST /shop (The Visual Personal Shopper)
-- **Input:** Accepts an image file (`UploadFile`). This will be a "crop" sent by the frontend when the user clicks a furniture item.
-- **Service:** Use `serpapi` (Google Search Results).
-- **Logic:**
-  - Initialize `GoogleSearch` with `engine="google_lens"`.
-  - Pass the image binary data (or save temporarily if SDK requires path, prefer in-memory if possible).
-  - Extract the `visual_matches` list.
-- **Output:** Return a JSON list containing `title`, `price`, `thumbnail`, and `link` for the top 5 matches.
+## 2. Image Cropping (The Math)
+Create a utility function `cropImageFromUV(imageUrl, uv)`:
+- Load the original image into an HTML `Image` object.
+- Create an off-screen `<canvas>`.
+- Calculate the center pixel coordinates:
+  - `x = uv.x * image.width`
+  - `y = (1 - uv.y) * image.height` (Note: Three.js UVs usually flip Y, so check if `1 - uv.y` or just `uv.y` is needed based on the texture mapping).
+- Define a crop size (e.g., 500x500 pixels).
+- Draw the image onto the canvas context, but shifted so the clicked point is in the center.
+- Export the result as a Base64 string (`canvas.toDataURL`).
 
-# Dependencies
-Create or update `requirements.txt` to include:
-- `fastapi`
-- `uvicorn`
-- `python-multipart`
-- `python-dotenv`
-- `google-genai` (Official Google Gen AI SDK)
-- `google-search-results` (Official SerpApi SDK)
-- `Pillow` (for image processing if needed)
+## 3. Integration
+- Pass a prop `onSelectProduct` (callback) to the `Scene360` component.
+- When the cropping is done, call this function with the Base64 image.
+- **Performance:** Use `useCallback` to prevent re-renders.
 
 # Instructions for Cursor
-- Code the complete `main.py`.
-- Ensure error handling (try/except) for API calls.
-- Do not use placeholders. Write production-ready code.
+- Implement the complete logic inside `Scene360`.
+- Handle the asynchronous loading of the image for the canvas operations.
+- Ensure the coordinate mapping is accurate (clicking the lamp should crop the lamp, not the floor).
 
 GO.

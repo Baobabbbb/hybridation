@@ -130,10 +130,10 @@ export function ProductSheet({
                 <Card className="overflow-hidden liquid-ios26 hover:border-primary/30 transition-spring">
                   <CardContent className="p-4">
                     <div className="flex gap-4">
-                      {product.image && (
+                      {(product.image || product.thumbnail) && (
                         <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                           <img
-                            src={product.image}
+                            src={product.image || product.thumbnail}
                             alt={product.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {

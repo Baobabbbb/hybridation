@@ -18,7 +18,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/components/upload-dropzone";
 import { ImageCropper } from "@/components/image-cropper";
 import { ProductSheet } from "@/components/product-sheet";
+import dynamic from "next/dynamic";
 import { generateFurnishedRoom, searchProducts, type Product } from "@/lib/api";
+
+// Dynamic import for Scene360 (Three.js needs client-side only)
+const Scene360 = dynamic(() => import("@/components/scene-360"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[500px] md:h-[600px] rounded-xl bg-black/20 flex items-center justify-center">
+      <div className="text-center text-muted-foreground">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <p className="text-sm">Chargement de la vue 360°...</p>
+      </div>
+    </div>
+  ),
+});
 
 type AppState = "upload" | "generating" | "result";
 
@@ -39,6 +53,7 @@ export default function HomePage() {
   const [style, setStyle] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [enhancedStyle, setEnhancedStyle] = useState<string | null>(null);
+  const [is360Format, setIs360Format] = useState(false);
 
   // Shopping state
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -70,8 +85,9 @@ export default function HomePage() {
       const response = await generateFurnishedRoom(selectedFile, style);
       setGeneratedImage(response.image);
       setEnhancedStyle(response.enhanced_style);
+      setIs360Format(response.format === "equirectangular_360");
       setAppState("result");
-      toast.success("Pièce générée avec succès !");
+      toast.success("Pièce 360° générée avec succès !");
     } catch (error) {
       console.error("Generation failed:", error);
       toast.error(
@@ -109,6 +125,7 @@ export default function HomePage() {
     setStyle("");
     setGeneratedImage(null);
     setEnhancedStyle(null);
+    setIs360Format(false);
     setProducts([]);
     setCroppedImage(null);
   }, []);
@@ -425,17 +442,32 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* Interactive Image */}
+              {/* Interactive Image - 360° View or Standard Cropper */}
               <Card className="liquid-ios26 overflow-hidden shadow-2xl">
                 <CardContent className="p-4 md:p-6">
-                  <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-                    <ShoppingCart className="w-4 h-4" />
-                    <span>Cliquez et glissez pour sélectionner un meuble à acheter</span>
-                  </div>
-                  <ImageCropper
-                    imageSrc={generatedImage}
-                    onCropComplete={handleCropComplete}
-                  />
+                  {is360Format ? (
+                    <>
+                      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+                        <ShoppingCart className="w-4 h-4" />
+                        <span>Vue 360° • Glissez pour explorer • Cliquez sur un meuble pour le rechercher</span>
+                      </div>
+                      <Scene360
+                        imageUrl={generatedImage}
+                        onSelectProduct={handleCropComplete}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+                        <ShoppingCart className="w-4 h-4" />
+                        <span>Cliquez et glissez pour sélectionner un meuble à acheter</span>
+                      </div>
+                      <ImageCropper
+                        imageSrc={generatedImage}
+                        onCropComplete={handleCropComplete}
+                      />
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
