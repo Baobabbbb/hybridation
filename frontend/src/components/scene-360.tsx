@@ -25,11 +25,12 @@ interface SphereViewerProps {
 
 /**
  * Crop a region from the panoramic image based on UV coordinates.
+ * Uses a smaller crop size (350px) for more precise furniture selection.
  */
 async function cropImageFromUV(
   imageUrl: string,
   uv: THREE.Vector2,
-  cropSize: number = 500
+  cropSize: number = 350
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -119,7 +120,8 @@ function SphereViewer({ imageUrl, onSelectProduct, mode }: SphereViewerProps) {
       setIsProcessing(true);
 
       try {
-        const croppedImage = await cropImageFromUV(imageUrl, uv, 500);
+        // Use 350px crop for more precise furniture selection
+        const croppedImage = await cropImageFromUV(imageUrl, uv, 350);
         console.log("[Scene360] Image cropped successfully");
         onSelectProduct(croppedImage);
       } catch (error) {

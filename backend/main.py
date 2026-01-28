@@ -414,6 +414,43 @@ async def upload_image_to_catbox(image_bytes: bytes) -> str:
         raise Exception(f"Failed to upload image: {response.text}")
 
 
+# Sites non-marchands à exclure
+EXCLUDED_DOMAINS = [
+    "instagram.com", "pinterest.com", "facebook.com", "twitter.com", "x.com",
+    "tiktok.com", "youtube.com", "reddit.com", "tumblr.com", "flickr.com",
+    "behance.net", "dribbble.com", "deviantart.com", "500px.com",
+    "unsplash.com", "pexels.com", "pixabay.com",  # Stock photos
+    "wikipedia.org", "wikimedia.org",  # Encyclopédies
+    "medium.com", "blogger.com", "wordpress.com",  # Blogs
+]
+
+def is_shopping_site(link: str, source: str) -> bool:
+    """Check if the link is from a legitimate shopping site (not social media or blogs)."""
+    if not link:
+        return False
+    
+    link_lower = link.lower()
+    source_lower = source.lower() if source else ""
+    
+    # Exclude social media and non-shopping sites
+    for domain in EXCLUDED_DOMAINS:
+        if domain in link_lower or domain in source_lower:
+            return False
+    
+    return True
+
+def has_valid_price(price) -> bool:
+    """Check if the product has a valid price."""
+    if price is None or price == "N/A" or price == "":
+        return False
+    if isinstance(price, (int, float)) and price > 0:
+        return True
+    if isinstance(price, str):
+        # Check if it contains numbers (likely a price)
+        return any(c.isdigit() for c in price)
+    return False
+
+
 @app.post("/shop")
 async def visual_search(
     image_blob: str = Form(..., description="Base64 encoded cropped image of the furniture")
@@ -424,7 +461,8 @@ async def visual_search(
     
     - **image_blob**: Base64 encoded image of the furniture item to search
     
-    Returns the top 5 matching products with title, price, thumbnail, and link.
+    Returns the top 5 matching products from legitimate e-commerce sites.
+    Filters out social media, blogs, and stock photo sites.
     """
     try:
         serpapi_key = os.getenv("SERPAPI_API_KEY")
@@ -473,11 +511,58 @@ async def visual_search(
                 detail=f"SerpApi error: {results['error']}"
             )
         
-        # Extract visual matches (top 5)
         products = []
-        visual_matches = results.get("visual_matches", [])
+        seen_links = set()
         
-        for match in visual_matches[:5]:
+        # PRIORITY 1: Shopping results (these are always from e-commerce sites)
+        shopping_results = results.get("shopping_results", [])
+        print(f"[Shop] Found {len(shopping_results)} shopping results")
+        
+        for item in shopping_results:
+            if len(products) >= 8:  # Collect more to filter later
+                break
+            
+            link = item.get("link", "")
+            if not link or link in seen_links:
+                continue
+            
+            price_data = item.get("price", {})
+            if isinstance(price_data, dict):
+                price = price_data.get("extracted_value") or price_data.get("value", "N/A")
+            else:
+                price = price_data if price_data else "N/A"
+            
+            product = {
+                "title": item.get("title", "Unknown Product"),
+                "price": price,
+                "thumbnail": item.get("thumbnail", ""),
+                "link": link,
+                "source": item.get("source", ""),
+                "has_price": has_valid_price(price)
+            }
+            
+            products.append(product)
+            seen_links.add(link)
+        
+        # PRIORITY 2: Visual matches with price from shopping sites
+        visual_matches = results.get("visual_matches", [])
+        print(f"[Shop] Found {len(visual_matches)} visual matches")
+        
+        for match in visual_matches:
+            if len(products) >= 12:  # Collect more to filter later
+                break
+            
+            link = match.get("link", "")
+            source = match.get("source", "")
+            
+            if not link or link in seen_links:
+                continue
+            
+            # Skip non-shopping sites
+            if not is_shopping_site(link, source):
+                print(f"[Shop] Skipping non-shopping site: {source}")
+                continue
+            
             price_data = match.get("price", {})
             if isinstance(price_data, dict):
                 price = price_data.get("extracted_value") or price_data.get("value", "N/A")
@@ -488,43 +573,31 @@ async def visual_search(
                 "title": match.get("title", "Unknown Product"),
                 "price": price,
                 "thumbnail": match.get("thumbnail", ""),
-                "link": match.get("link", ""),
-                "source": match.get("source", "")
+                "link": link,
+                "source": source,
+                "has_price": has_valid_price(price)
             }
             
-            if product["link"]:
-                products.append(product)
+            products.append(product)
+            seen_links.add(link)
         
-        # Also check shopping results
-        shopping_results = results.get("shopping_results", [])
-        for item in shopping_results[:3]:
-            if len(products) >= 5:
-                break
-                
-            price_data = item.get("price", {})
-            if isinstance(price_data, dict):
-                price = price_data.get("extracted_value") or item.get("price", "N/A")
-            else:
-                price = price_data if price_data else "N/A"
-            
-            product = {
-                "title": item.get("title", "Unknown Product"),
-                "price": price,
-                "thumbnail": item.get("thumbnail", ""),
-                "link": item.get("link", ""),
-                "source": item.get("source", "")
-            }
-            
-            # Avoid duplicates
-            if product["link"] and product not in products:
-                products.append(product)
+        # Sort: products with prices first, then by source relevance
+        products_with_price = [p for p in products if p["has_price"]]
+        products_without_price = [p for p in products if not p["has_price"]]
         
-        print(f"[Shop] Found {len(products)} products")
+        # Combine and limit to 5
+        final_products = (products_with_price + products_without_price)[:5]
+        
+        # Remove the helper field before returning
+        for p in final_products:
+            p.pop("has_price", None)
+        
+        print(f"[Shop] Returning {len(final_products)} filtered products")
         
         return JSONResponse(content={
             "success": True,
-            "products": products[:5],  # Ensure max 5
-            "total": len(products[:5])
+            "products": final_products,
+            "total": len(final_products)
         })
         
     except HTTPException:
