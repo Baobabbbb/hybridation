@@ -143,23 +143,24 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
       exit={{ opacity: 0 }}
       className="absolute inset-0 z-30 bg-black/90 flex flex-col"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
-        <div className="flex items-center gap-2 text-white">
-          <MousePointer2 className="w-4 h-4" />
-          <span className="text-sm font-medium">Dessinez un rectangle autour du meuble</span>
+      {/* Header - Responsive */}
+      <div className="flex items-center justify-between p-2 sm:p-4 border-b border-white/10">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-white min-w-0 flex-1">
+          <MousePointer2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="text-xs sm:text-sm font-medium truncate">Dessinez un rectangle autour du meuble</span>
         </div>
         <button
           onClick={onClose}
-          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="p-1.5 sm:p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex-shrink-0 ml-2"
+          aria-label="Fermer"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Crop area */}
-      <div className="flex-1 overflow-auto p-4 flex items-center justify-center">
-        <div className="relative max-w-full max-h-full">
+      {/* Crop area - Responsive */}
+      <div className="flex-1 overflow-auto p-2 sm:p-4 flex items-center justify-center">
+        <div className="relative max-w-full max-h-full w-full">
           {/* Selecting indicator */}
           <AnimatePresence>
             {isSelecting && (
@@ -167,14 +168,14 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/90 text-white text-xs font-medium"
+                className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-primary/90 text-white text-[10px] sm:text-xs font-medium"
               >
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 0.5, repeat: Infinity }}
-                  className="w-2 h-2 rounded-full bg-white"
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white"
                 />
-                <span>Sélection en cours...</span>
+                <span className="whitespace-nowrap">Sélection...</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -185,22 +186,22 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
             onComplete={handleCropComplete}
             onDragStart={() => setIsSelecting(true)}
             onDragEnd={() => setIsSelecting(false)}
-            className="rounded-lg overflow-hidden"
+            className="rounded-lg overflow-hidden w-full"
           >
             <img
               ref={imgRef}
               src={capturedImage}
               alt="Vue 360° capturée"
-              className="max-w-full max-h-[60vh] object-contain"
+              className="max-w-full max-h-[50vh] sm:max-h-[60vh] object-contain w-full h-auto"
               crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
       </div>
 
-      {/* Instructions */}
-      <div className="p-4 border-t border-white/10 text-center">
-        <p className="text-white/60 text-sm">
+      {/* Instructions - Responsive */}
+      <div className="p-2 sm:p-4 border-t border-white/10 text-center">
+        <p className="text-white/60 text-xs sm:text-sm px-2">
           Cliquez et glissez pour sélectionner le meuble que vous souhaitez rechercher
         </p>
       </div>
@@ -265,53 +266,54 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   }), []);
 
   return (
-    <div className="relative w-full h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-black/20">
+    <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-black/20">
       {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-          <div className="text-white text-center">
+          <div className="text-white text-center px-4">
             <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-sm">Chargement de la vue 360°...</p>
+            <p className="text-xs sm:text-sm">Chargement de la vue 360°...</p>
           </div>
         </div>
       )}
 
-      {/* Mode toggle buttons */}
-      <div className="absolute top-4 left-4 z-20">
-        <div className="flex rounded-xl overflow-hidden bg-black/60 backdrop-blur-md border border-white/10">
+      {/* Mode toggle buttons - Responsive */}
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
+        <div className="flex flex-col sm:flex-row rounded-lg sm:rounded-xl overflow-hidden bg-black/70 sm:bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
           <button
             onClick={() => {
               setMode("navigate");
               setShowSelectionOverlay(false);
             }}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all ${
               mode === "navigate" && !showSelectionOverlay
                 ? "bg-white/20 text-white"
                 : "text-white/60 hover:text-white hover:bg-white/10"
             }`}
           >
-            <Move3D className="w-4 h-4" />
-            <span>Navigation</span>
+            <Move3D className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="whitespace-nowrap">Navigation</span>
           </button>
           <button
             onClick={handleSelectMode}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all ${
               showSelectionOverlay
                 ? "bg-primary/80 text-white"
                 : "text-white/60 hover:text-white hover:bg-white/10"
             }`}
           >
-            <Camera className="w-4 h-4" />
-            <span>Sélectionner</span>
+            <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="whitespace-nowrap">Sélectionner</span>
           </button>
         </div>
       </div>
 
-      {/* Mode instructions */}
+      {/* Mode instructions - Responsive */}
       {!showSelectionOverlay && (
-        <div className="absolute top-4 right-4 z-20 pointer-events-none">
-          <div className="px-3 py-1.5 rounded-full backdrop-blur-sm text-xs bg-black/60 text-white">
-            🖱️ Glissez pour explorer • Cliquez sur "Sélectionner" pour choisir un meuble
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 pointer-events-none max-w-[calc(100%-120px)] sm:max-w-none">
+          <div className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-full backdrop-blur-sm text-[10px] sm:text-xs bg-black/70 sm:bg-black/60 text-white">
+            <span className="hidden sm:inline">🖱️ Glissez pour explorer • Cliquez sur "Sélectionner" pour choisir un meuble</span>
+            <span className="sm:hidden">🖱️ Glissez • "Sélectionner" pour choisir</span>
           </div>
         </div>
       )}

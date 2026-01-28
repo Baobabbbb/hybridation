@@ -168,22 +168,22 @@ export default function HomePage() {
         <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background/95" />
       )}
 
-      {/* Header */}
+      {/* Header - Responsive */}
       <header className="liquid-ios26-strong sticky top-0 z-50 border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
             <motion.div
-              className="flex items-center gap-3 cursor-pointer"
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0 flex-1"
               onClick={handleReset}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="p-2 rounded-xl liquid-ios26-button">
-                <Home className="w-5 h-5 text-primary" />
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl liquid-ios26-button flex-shrink-0">
+                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight liquid-text">Aedis</h1>
-                <p className="text-xs liquid-text-muted">Design d'intérieur IA</p>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight liquid-text truncate">Aedis</h1>
+                <p className="text-[10px] sm:text-xs liquid-text-muted hidden sm:block">Design d'intérieur IA</p>
               </div>
             </motion.div>
 
@@ -191,15 +191,17 @@ export default function HomePage() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                className="flex-shrink-0"
               >
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={handleReset}
-                  className="liquid-ios26-button transition-spring"
+                  className="liquid-ios26-button transition-spring text-xs sm:text-sm px-2 sm:px-3"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Nouveau design
+                  <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Nouveau design</span>
+                  <span className="sm:hidden">Nouveau</span>
                 </Button>
               </motion.div>
             )}
@@ -208,7 +210,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 md:py-16">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-16">
         <AnimatePresence mode="wait" initial={false}>
           {/* Upload State */}
           {appState === "upload" && (
@@ -220,22 +222,22 @@ export default function HomePage() {
               transition={{ duration: 0.3 }}
               className="max-w-2xl mx-auto"
             >
-              {/* Hero Text */}
-              <div className="text-center mb-12">
+              {/* Hero Text - Responsive */}
+              <div className="text-center mb-8 sm:mb-12">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-ios26 text-primary text-sm font-medium mb-4"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full liquid-ios26 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  Design d'intérieur propulsé par l'IA
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="whitespace-nowrap">Design d'intérieur propulsé par l'IA</span>
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-4xl md:text-5xl font-bold tracking-tight mb-4"
+                  className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4 px-2"
                 >
                   Transformez vos
                   <br />
@@ -245,16 +247,16 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-lg text-muted-foreground max-w-md mx-auto"
+                  className="text-base sm:text-lg text-muted-foreground max-w-md mx-auto px-2"
                 >
                   Téléchargez votre plan architectural et regardez l'IA le transformer en
                   une pièce meublée photoréaliste
                 </motion.p>
               </div>
 
-              {/* Upload Card */}
+              {/* Upload Card - Responsive */}
               <Card className="liquid-ios26 shadow-2xl">
-                <CardContent className="p-6 md:p-8 space-y-6">
+                <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
                   {/* Dropzone */}
                   <UploadDropzone
                     onFileSelect={handleFileSelect}
@@ -262,26 +264,26 @@ export default function HomePage() {
                     onClear={handleFileClear}
                   />
 
-                  {/* Style Input */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-foreground">
+                  {/* Style Input - Responsive */}
+                  <div className="space-y-2 sm:space-y-3">
+                    <label className="text-xs sm:text-sm font-medium text-foreground">
                       Style de design
                     </label>
                     <Input
-                      placeholder="Décrivez le style souhaité... (ex: Minimaliste moderne avec tons chauds)"
+                      placeholder="Décrivez le style souhaité..."
                       value={style}
                       onChange={(e) => setStyle(e.target.value)}
-                      className="h-12 liquid-ios26-input transition-spring"
+                      className="h-10 sm:h-12 text-sm sm:text-base liquid-ios26-input transition-spring"
                     />
-                    {/* Style suggestions */}
-                    <div className="flex flex-wrap gap-2">
+                    {/* Style suggestions - Responsive */}
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {STYLE_SUGGESTIONS.map((suggestion) => (
                         <motion.button
                           key={suggestion}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setStyle(suggestion)}
-                          className="px-3 py-1 text-xs rounded-full liquid-ios26 text-muted-foreground hover:text-foreground transition-spring"
+                          className="px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full liquid-ios26 text-muted-foreground hover:text-foreground transition-spring"
                         >
                           {suggestion}
                         </motion.button>
@@ -289,14 +291,14 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Generate Button */}
+                  {/* Generate Button - Responsive */}
                   <Button
-                    className="w-full h-12 text-base font-medium liquid-ios26-button transition-spring"
+                    className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium liquid-ios26-button transition-spring"
                     size="lg"
                     onClick={handleGenerate}
                     disabled={!selectedFile || !style.trim()}
                   >
-                    <Wand2 className="w-5 h-5 mr-2" />
+                    <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                     Générer
                   </Button>
                 </CardContent>
@@ -394,28 +396,29 @@ export default function HomePage() {
               transition={{ duration: 0.2 }}
               className="max-w-5xl mx-auto"
             >
-              {/* Result Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-ios26 text-green-500 text-sm font-medium mb-4">
-                  <Sparkles className="w-4 h-4" />
+              {/* Result Header - Responsive */}
+              <div className="text-center mb-6 sm:mb-8 px-2">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full liquid-ios26 text-green-500 text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   Génération terminée
                 </div>
-                <h2 className="text-3xl font-bold mb-2">Votre pièce meublée</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2">Votre pièce meublée</h2>
                 {enhancedStyle && (
-                  <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+                  <p className="text-muted-foreground text-xs sm:text-sm max-w-xl mx-auto px-2">
                     Style : {enhancedStyle}
                   </p>
                 )}
               </div>
 
-              {/* Interactive Image - 360° View or Standard Cropper */}
+              {/* Interactive Image - 360° View or Standard Cropper - Responsive */}
               <Card className="liquid-ios26 overflow-hidden shadow-2xl">
-                <CardContent className="p-4 md:p-6">
+                <CardContent className="p-2 sm:p-4 md:p-6">
                   {is360Format ? (
                     <>
-                      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-                        <ShoppingCart className="w-4 h-4" />
-                        <span>Vue 360° • Glissez pour explorer • Cliquez sur un meuble pour le rechercher</span>
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 text-xs sm:text-sm text-muted-foreground px-1">
+                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline">Vue 360° • Glissez pour explorer • Cliquez sur un meuble pour le rechercher</span>
+                        <span className="sm:hidden">Vue 360° • Glissez pour explorer</span>
                       </div>
                       <Scene360
                         imageUrl={generatedImage}
@@ -424,9 +427,10 @@ export default function HomePage() {
                     </>
                   ) : (
                     <>
-                      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-                        <ShoppingCart className="w-4 h-4" />
-                        <span>Cliquez et glissez pour sélectionner un meuble à acheter</span>
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 text-xs sm:text-sm text-muted-foreground px-1">
+                        <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline">Cliquez et glissez pour sélectionner un meuble à acheter</span>
+                        <span className="sm:hidden">Cliquez et glissez pour sélectionner</span>
                       </div>
                       <ImageCropper
                         imageSrc={generatedImage}
@@ -437,14 +441,14 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              {/* Action Buttons */}
-              <div className="flex justify-center gap-4 mt-6">
+              {/* Action Buttons - Responsive */}
+              <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-4 sm:mt-6 px-2">
                 <Button 
                   variant="outline" 
                   onClick={handleReset}
-                  className="liquid-ios26-button"
+                  className="liquid-ios26-button w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                   Recommencer
                 </Button>
                 <Button
@@ -457,9 +461,10 @@ export default function HomePage() {
                       link.click();
                     }
                   }}
-                  className="liquid-ios26-button"
+                  className="liquid-ios26-button w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
                 >
-                  Télécharger l'image
+                  <span className="hidden sm:inline">Télécharger l'image</span>
+                  <span className="sm:hidden">Télécharger</span>
                 </Button>
               </div>
             </motion.div>
@@ -477,9 +482,9 @@ export default function HomePage() {
         croppedImage={croppedImage}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-6 mt-auto liquid-ios26">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      {/* Footer - Responsive */}
+      <footer className="border-t border-white/10 py-4 sm:py-6 mt-auto liquid-ios26">
+        <div className="container mx-auto px-3 sm:px-4 text-center text-xs sm:text-sm text-muted-foreground">
           <p>
             Aedis — Transformez vos plans en pièces photoréalistes
           </p>
