@@ -1,11 +1,14 @@
 "use client";
 
 import { useCallback, useRef, useState, useEffect } from "react";
-import { Canvas, useThree, useLoader } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
+import { MousePointer2, Move3D } from "lucide-react";
 
 // ==================== TYPES ====================
+
+type ViewMode = "navigate" | "select";
 
 interface Scene360Props {
   imageUrl: string;
@@ -22,6 +25,7 @@ interface SphereViewerProps {
   onSelectProduct: (croppedImageBase64: string) => void;
   markers: MarkerData[];
   setMarkers: React.Dispatch<React.SetStateAction<MarkerData[]>>;
+  mode: ViewMode;
 }
 
 // ==================== UTILITY: Crop Image from UV ====================
@@ -128,9 +132,8 @@ function ClickMarker({ position }: { position: THREE.Vector3 }) {
 
 // ==================== SPHERE VIEWER COMPONENT ====================
 
-function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers }: SphereViewerProps) {
+function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers, mode }: SphereViewerProps) {
   const sphereRef = useRef<THREE.Mesh>(null);
-  const { camera } = useThree();
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Load texture
@@ -144,9 +147,12 @@ function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers }: Sphere
     }
   }, [texture]);
 
-  // Handle click on sphere
+  // Handle click on sphere - only in select mode
   const handleClick = useCallback(
     async (event: THREE.Event & { uv?: THREE.Vector2; point?: THREE.Vector3 }) => {
+      // Only process clicks in select mode
+      if (mode !== "select") return;
+      
       // Prevent multiple clicks while processing
       if (isProcessing) return;
 
@@ -181,7 +187,7 @@ function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers }: Sphere
         setIsProcessing(false);
       }
     },
-    [imageUrl, onSelectProduct, isProcessing, setMarkers]
+    [imageUrl, onSelectProduct, isProcessing, setMarkers, mode]
   );
 
   return (
@@ -205,6 +211,7 @@ function SphereViewer({ imageUrl, onSelectProduct, markers, setMarkers }: Sphere
 export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mode, setMode] = useState<ViewMode>("navigate");
 
   // Preload image to check if it's valid
   useEffect(() => {
@@ -226,11 +233,44 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       )}
 
-      {/* Instructions overlay */}
-      <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-xs">
-          <span>🖱️</span>
-          <span>Glissez pour explorer • Cliquez sur un meuble pour le rechercher</span>
+      {/* Mode toggle buttons */}
+      <div className="absolute top-4 left-4 z-20">
+        <div className="flex rounded-xl overflow-hidden bg-black/60 backdrop-blur-md border border-white/10">
+          <button
+            onClick={() => setMode("navigate")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all ${
+              mode === "navigate"
+                ? "bg-white/20 text-white"
+                : "text-white/60 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <Move3D className="w-4 h-4" />
+            <span>Navigation</span>
+          </button>
+          <button
+            onClick={() => setMode("select")}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all ${
+              mode === "select"
+                ? "bg-primary/80 text-white"
+                : "text-white/60 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <MousePointer2 className="w-4 h-4" />
+            <span>Sélection</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mode instructions */}
+      <div className="absolute top-4 right-4 z-20 pointer-events-none">
+        <div className={`px-3 py-1.5 rounded-full backdrop-blur-sm text-xs ${
+          mode === "navigate" 
+            ? "bg-black/60 text-white" 
+            : "bg-primary/80 text-white"
+        }`}>
+          {mode === "navigate" 
+            ? "🖱️ Glissez pour explorer la vue 360°" 
+            : "👆 Cliquez sur un meuble pour le rechercher"}
         </div>
       </div>
 
@@ -242,7 +282,10 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           near: 0.1,
           far: 1000,
         }}
-        style={{ background: "#000" }}
+        style={{ 
+          background: "#000",
+          cursor: mode === "select" ? "crosshair" : "grab"
+        }}
       >
         {/* Ambient light for basic visibility */}
         <ambientLight intensity={1} />
@@ -253,10 +296,12 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           onSelectProduct={onSelectProduct}
           markers={markers}
           setMarkers={setMarkers}
+          mode={mode}
         />
 
-        {/* Orbit controls for navigation */}
+        {/* Orbit controls for navigation - disabled in select mode */}
         <OrbitControls
+          enabled={mode === "navigate"}
           enableZoom={true}
           enablePan={false}
           rotateSpeed={-0.3}
