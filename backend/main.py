@@ -1,17 +1,15 @@
 """
-Plan2Shop AI - Backend API
-FastAPI server for image generation and visual shopping search.
+Hybridation - Backend API
+FastAPI server for 360° panoramic image generation and visual shopping search.
 With automatic fallback from Gemini to OpenAI when servers are overloaded.
-Version 2.0 - OpenAI Fallback enabled
 """
 
 import os
 import base64
 import io
 import asyncio
-import time
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Tuple
 
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,7 +22,7 @@ from serpapi import GoogleSearch
 from openai import OpenAI
 
 # Retry configuration
-MAX_RETRIES = 2  # Reduced for faster fallback
+MAX_RETRIES = 2
 INITIAL_RETRY_DELAY = 2  # seconds
 
 # Load environment variables from the same directory as this file
@@ -33,23 +31,23 @@ load_dotenv(dotenv_path=env_path, override=True)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Plan2Shop AI API",
-    description="Transform architectural plans into photorealistic furnished rooms",
-    version="1.0.0"
+    title="Hybridation API",
+    description="Transform architectural plans into 360° panoramic furnished rooms",
+    version="2.0.0"
 )
 
-# Configure CORS - filter out empty values
-cors_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# Configure CORS - Allow all origins for flexibility
+cors_origins = ["*"]
 
-# Add Railway frontend URL if configured
+# Add specific Railway frontend URL if configured
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
-    cors_origins.append(frontend_url)
-    # Also allow without trailing slash
-    cors_origins.append(frontend_url.rstrip("/"))
+    cors_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        frontend_url,
+        frontend_url.rstrip("/")
+    ]
 
 print(f"[CORS] Allowed origins: {cors_origins}")
 
@@ -61,19 +59,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Gemini client
+
+# ==================== UTILITY FUNCTIONS ====================
+
 def get_genai_client():
+    """Initialize Gemini client."""
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="GOOGLE_API_KEY not configured")
     return genai.Client(api_key=api_key)
 
 
-# Initialize OpenAI client
 def get_openai_client():
+    """Initialize OpenAI client (optional fallback)."""
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        return None  # OpenAI is optional (fallback)
+        return None
     return OpenAI(api_key=api_key)
 
 
@@ -92,18 +93,13 @@ def image_to_base64(image: Image.Image, format: str = "PNG") -> str:
 
 def base64_to_image(base64_string: str) -> Image.Image:
     """Convert base64 string to PIL Image."""
-    # Remove data URL prefix if present
     if "," in base64_string:
         base64_string = base64_string.split(",")[1]
     image_data = base64.b64decode(base64_string)
     return Image.open(io.BytesIO(image_data))
 
 
-@app.get("/")
-async def root():
-    """Health check endpoint."""
-    return {"status": "ok", "service": "Plan2Shop AI API"}
-
+# ==================== GEMINI API FUNCTIONS ====================
 
 async def call_gemini_with_retry(client, model: str, contents, config=None, max_retries: int = MAX_RETRIES):
     """Call Gemini API with automatic retry on 503 errors."""
@@ -136,8 +132,10 @@ async def call_gemini_with_retry(client, model: str, contents, config=None, max_
     raise last_error
 
 
+# ==================== OPENAI FALLBACK FUNCTIONS ====================
+
 async def enhance_prompt_with_openai(openai_client, style: str) -> str:
-    """Use GPT-4o-mini to enhance the style prompt."""
+    """Use GPT-4o-mini to enhance the style prompt for 360° panoramic generation."""
     print("[OpenAI] Using GPT-4o-mini for prompt enhancement (fallback)...")
     
     response = openai_client.chat.completions.create(
@@ -145,7 +143,11 @@ async def enhance_prompt_with_openai(openai_client, style: str) -> str:
         messages=[
             {
                 "role": "system",
-                "content": "You are an expert interior designer. Transform style descriptions into detailed, professional interior design prompts for AI image generation. Be specific about materials, colors, lighting, and furniture styles. Keep it concise (2-3 sentences max). Output only the enhanced prompt, nothing else."
+                "content": """You are an expert interior designer specializing in 360° panoramic visualization.
+Transform style descriptions into detailed prompts for AI image generation.
+Focus on: materials, colors, lighting, furniture placement, and spatial arrangement.
+The output will be used for equirectangular 360° panoramic images.
+Keep it concise (2-3 sentences max). Output only the enhanced prompt."""
             },
             {
                 "role": "user",
@@ -159,67 +161,74 @@ async def enhance_prompt_with_openai(openai_client, style: str) -> str:
     return response.choices[0].message.content.strip()
 
 
-async def generate_image_with_openai(openai_client, input_image: Image.Image, enhanced_style: str) -> Tuple[str, str]:
-    """Use gpt-image-1 to generate the furnished room image."""
-    print("[OpenAI] Using gpt-image-1 for image generation (fallback)...")
+async def generate_360_image_with_openai(openai_client, input_image: Image.Image, enhanced_style: str) -> Tuple[str, str]:
+    """Use gpt-image-1 to generate a 360° panoramic room image."""
+    print("[OpenAI] Using gpt-image-1 for 360° image generation (fallback)...")
     
-    # Convert image to base64 for the prompt description
-    image_buffer = io.BytesIO()
-    input_image.save(image_buffer, format="PNG")
-    image_buffer.seek(0)
-    input_base64 = base64.b64encode(image_buffer.getvalue()).decode("utf-8")
-    
-    # Create detailed prompt for gpt-image-1
-    generation_prompt = f"""Create a photorealistic interior photograph of a furnished room.
+    # Create detailed prompt for 360° equirectangular panorama
+    generation_prompt = f"""Generate a high-resolution 360-degree equirectangular projection of an interior room.
 
-The room should have:
-- A modern residential layout with walls, windows, and doors
-- Professional real estate photography style
-- Natural lighting coming from windows
-- High-end furniture and decorations
+CRITICAL REQUIREMENTS:
+- The image MUST be a seamless 360° equirectangular panorama
+- Aspect ratio should be suitable for VR sphere viewer (2:1 preferred)
+- The room should wrap around completely with no visible seams
+- Include ceiling and floor in the projection
+- Professional interior photography quality
+
+ROOM DESIGN:
+- Modern residential interior with proper spatial depth
+- Natural lighting from windows/skylights
+- High-end furniture and decorations arranged realistically
+- Cohesive color palette and material choices
 
 STYLE: {enhanced_style}
 
-Make it look like a professional architectural visualization or real estate photo.
-The image should be warm, inviting, and showcase the interior design beautifully."""
+Make it photorealistic, suitable for VR/360° viewing experiences."""
 
-    # Call gpt-image-1
+    # Call gpt-image-1 with landscape orientation for 360°
     response = openai_client.images.generate(
         model="gpt-image-1",
         prompt=generation_prompt,
         n=1,
-        size="1024x1024",
-        quality="high"
+        size="1792x1024",  # Wider aspect ratio for 360°
+        quality="hd"
     )
     
     # Get the image URL and download it
     image_url = response.data[0].url
     
-    # Download the image
     import httpx
     async with httpx.AsyncClient() as client:
         img_response = await client.get(image_url)
         img_data = img_response.content
     
-    # Convert to base64
     generated_base64 = base64.b64encode(img_data).decode("utf-8")
     
     return generated_base64, "image/png"
 
 
+# ==================== ENDPOINTS ====================
+
+@app.get("/")
+async def root():
+    """Health check endpoint."""
+    return {"status": "ok", "service": "Hybridation API", "version": "2.0.0"}
+
+
 @app.post("/generate")
-async def generate_furnished_room(
+async def generate_360_room(
     file: UploadFile = File(..., description="The architectural floor plan image"),
     style: str = Form(..., description="The decoration style (e.g., 'modern minimalist', 'industrial loft')")
 ):
     """
-    Generate a photorealistic furnished room from an architectural plan.
-    Uses Gemini as primary, falls back to OpenAI if Gemini is overloaded.
+    Generate a 360° panoramic equirectangular image of a furnished room.
     
+    The 360° Decorator endpoint:
     - **file**: The 2D floor plan image (PNG, JPG)
     - **style**: The desired decoration style
     
-    Returns the generated image as base64.
+    Returns a 360° equirectangular panoramic image suitable for VR sphere viewers.
+    Uses Gemini as primary, falls back to OpenAI if Gemini is overloaded.
     """
     try:
         # Validate file type
@@ -230,7 +239,7 @@ async def generate_furnished_room(
         contents = await file.read()
         input_image = Image.open(io.BytesIO(contents))
         
-        # Convert to RGB if necessary (for RGBA images)
+        # Convert to RGB if necessary
         if input_image.mode in ("RGBA", "P"):
             input_image = input_image.convert("RGB")
         
@@ -244,19 +253,22 @@ async def generate_furnished_room(
         gemini_failed = False
         
         # ===== STEP 1: Enhance the style prompt =====
+        # System instruction for 360° panoramic design
+        system_instruction = """You are an expert interior designer specializing in 360° panoramic visualization.
+Transform the user's style description into a detailed, professional interior design prompt.
+Focus on: materials, colors, lighting, furniture styles, and spatial arrangement.
+The output will be used for equirectangular 360° panoramic image generation.
+Keep it concise (2-3 sentences max). Output only the enhanced prompt, nothing else."""
+        
         try:
             print("[Gemini] Attempting to enhance prompt with gemini-2.5-flash-lite...")
             enhanced_prompt_response = await call_gemini_with_retry(
                 gemini_client,
                 model="gemini-2.5-flash-lite",
                 contents=[
-                    f"""You are an expert interior designer. Transform this simple style description into a detailed, 
-                    professional interior design prompt for AI image generation. Be specific about materials, 
-                    colors, lighting, and furniture styles. Keep it concise (2-3 sentences max).
+                    f"""{system_instruction}
                     
-                    Style: {style}
-                    
-                    Output only the enhanced prompt, nothing else."""
+Style: {style}"""
                 ]
             )
             enhanced_style = enhanced_prompt_response.text.strip()
@@ -271,31 +283,38 @@ async def generate_furnished_room(
             else:
                 raise e
         
-        # ===== STEP 2: Generate the image =====
+        # ===== STEP 2: Generate the 360° panoramic image =====
         generated_image_base64 = None
         mime_type = "image/png"
         
         if not gemini_failed:
-            # Try Gemini first for image generation
             try:
-                print("[Gemini] Attempting image generation with gemini-3-pro-image-preview...")
+                print("[Gemini] Attempting 360° image generation with gemini-3-pro-image-preview...")
                 
                 # Prepare the image for Gemini
                 image_bytes = io.BytesIO()
                 input_image.save(image_bytes, format="PNG")
                 image_bytes.seek(0)
                 
-                generation_prompt = f"""Transform this 2D architectural floor plan into a photorealistic interior photograph.
+                # 360° Equirectangular Panorama Generation Prompt
+                generation_prompt = f"""You are an expert interior designer. Generate a high-resolution 360-degree equirectangular projection of the room based on this floor plan.
 
-CRITICAL INSTRUCTIONS:
-- Keep the EXACT same room layout, walls, windows, and doors positions
-- Add realistic furniture, decorations, and lighting
-- Make it look like a professional real estate photograph
-- The perspective should be as if photographed by a professional photographer
+CRITICAL REQUIREMENTS FOR 360° PANORAMA:
+- The image MUST be a seamless 360-degree equirectangular projection
+- Aspect ratio: 2:1 (suitable for VR sphere viewer)
+- The room should wrap around completely with no visible seams or discontinuities
+- Include full ceiling and floor in the projection
+- Camera position should be at eye level in the center of the room
+
+ROOM TRANSFORMATION:
+- Transform this 2D floor plan into a fully furnished 3D interior
+- Maintain the exact room layout, walls, windows, and doors positions from the plan
+- Add realistic furniture, decorations, and lighting based on the room's purpose
+- Professional real estate photography quality
 
 STYLE: {enhanced_style}
 
-Generate a high-quality, photorealistic image of this furnished room."""
+Generate a photorealistic, seamless 360° equirectangular panoramic image."""
 
                 response = await call_gemini_with_retry(
                     gemini_client,
@@ -325,7 +344,7 @@ Generate a high-quality, photorealistic image of this furnished room."""
                         break
                 
                 if generated_image_base64:
-                    print("[Gemini] Image generation successful!")
+                    print("[Gemini] 360° image generation successful!")
                 else:
                     raise Exception("Gemini did not return an image")
                     
@@ -345,17 +364,18 @@ Generate a high-quality, photorealistic image of this furnished room."""
                     detail="Les serveurs Gemini sont surchargés et aucune clé OpenAI n'est configurée comme fallback."
                 )
             
-            generated_image_base64, mime_type = await generate_image_with_openai(
+            generated_image_base64, mime_type = await generate_360_image_with_openai(
                 openai_client, input_image, enhanced_style
             )
             provider_used = "openai"
-            print("[OpenAI] Image generation successful!")
+            print("[OpenAI] 360° image generation successful!")
         
         return JSONResponse(content={
             "success": True,
             "image": f"data:{mime_type};base64,{generated_image_base64}",
             "enhanced_style": enhanced_style,
-            "provider": provider_used  # Let frontend know which provider was used
+            "provider": provider_used,
+            "format": "equirectangular_360"
         })
         
     except HTTPException:
@@ -379,7 +399,7 @@ async def upload_image_to_catbox(image_bytes: bytes) -> str:
     files = {
         'fileToUpload': ('image.png', image_bytes, 'image/png'),
         'reqtype': (None, 'fileupload'),
-        'time': (None, '1h')  # 1 hour expiry
+        'time': (None, '1h')
     }
     
     response = requests.post(
@@ -399,11 +419,12 @@ async def visual_search(
     image_blob: str = Form(..., description="Base64 encoded cropped image of the furniture")
 ):
     """
+    The Visual Personal Shopper endpoint.
     Search for similar products using Google Lens via SerpApi.
     
     - **image_blob**: Base64 encoded image of the furniture item to search
     
-    Returns a list of similar products with title, price, image, and shopping link.
+    Returns the top 5 matching products with title, price, thumbnail, and link.
     """
     try:
         serpapi_key = os.getenv("SERPAPI_API_KEY")
@@ -423,16 +444,19 @@ async def visual_search(
         buffer.seek(0)
         image_bytes = buffer.getvalue()
         
-        # Upload to temporary hosting service (required for SerpApi to access)
+        # Upload to temporary hosting service (required for SerpApi)
+        print("[Shop] Uploading image to temporary hosting...")
         try:
             image_url = await upload_image_to_catbox(image_bytes)
+            print(f"[Shop] Image uploaded: {image_url}")
         except Exception as upload_error:
             raise HTTPException(
                 status_code=500, 
                 detail=f"Failed to upload image for search: {str(upload_error)}"
             )
         
-        # Call SerpApi Google Lens with the public URL
+        # Call SerpApi Google Lens
+        print("[Shop] Searching with Google Lens via SerpApi...")
         params = {
             "engine": "google_lens",
             "url": image_url,
@@ -449,62 +473,64 @@ async def visual_search(
                 detail=f"SerpApi error: {results['error']}"
             )
         
-        # Extract shopping results
+        # Extract visual matches (top 5)
         products = []
-        
-        # Check for visual matches with shopping info
         visual_matches = results.get("visual_matches", [])
-        for match in visual_matches[:10]:  # Limit to 10 results
+        
+        for match in visual_matches[:5]:
             price_data = match.get("price", {})
             if isinstance(price_data, dict):
                 price = price_data.get("extracted_value") or price_data.get("value", "N/A")
-                currency = price_data.get("currency", "USD")
             else:
                 price = price_data if price_data else "N/A"
-                currency = "USD"
             
             product = {
                 "title": match.get("title", "Unknown Product"),
                 "price": price,
-                "currency": currency,
-                "image": match.get("thumbnail", ""),
+                "thumbnail": match.get("thumbnail", ""),
                 "link": match.get("link", ""),
                 "source": match.get("source", "")
             }
-            if product["link"]:  # Only add if there's a link
+            
+            if product["link"]:
                 products.append(product)
         
-        # Also check shopping results if available
+        # Also check shopping results
         shopping_results = results.get("shopping_results", [])
-        for item in shopping_results[:5]:
+        for item in shopping_results[:3]:
+            if len(products) >= 5:
+                break
+                
             price_data = item.get("price", {})
             if isinstance(price_data, dict):
-                price = price_data.get("extracted_value") or price_data.get("value", "N/A")
-                currency = price_data.get("currency", "USD")
+                price = price_data.get("extracted_value") or item.get("price", "N/A")
             else:
                 price = price_data if price_data else "N/A"
-                currency = "USD"
             
             product = {
                 "title": item.get("title", "Unknown Product"),
                 "price": price,
-                "currency": currency,
-                "image": item.get("thumbnail", ""),
+                "thumbnail": item.get("thumbnail", ""),
                 "link": item.get("link", ""),
                 "source": item.get("source", "")
             }
+            
+            # Avoid duplicates
             if product["link"] and product not in products:
                 products.append(product)
         
+        print(f"[Shop] Found {len(products)} products")
+        
         return JSONResponse(content={
             "success": True,
-            "products": products,
-            "total": len(products)
+            "products": products[:5],  # Ensure max 5
+            "total": len(products[:5])
         })
         
     except HTTPException:
         raise
     except Exception as e:
+        print(f"[ERROR] Visual search failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Visual search failed: {str(e)}")
 
 
@@ -513,10 +539,18 @@ async def health_check():
     """Detailed health check for Railway deployment."""
     return {
         "status": "healthy",
-        "google_api_configured": bool(os.getenv("GOOGLE_API_KEY")),
-        "openai_api_configured": bool(os.getenv("OPENAI_API_KEY")),
-        "serpapi_configured": bool(os.getenv("SERPAPI_API_KEY")),
-        "fallback_enabled": bool(os.getenv("OPENAI_API_KEY"))
+        "service": "Hybridation API",
+        "version": "2.0.0",
+        "features": {
+            "360_panorama": True,
+            "visual_shopping": True
+        },
+        "config": {
+            "google_api_configured": bool(os.getenv("GOOGLE_API_KEY")),
+            "openai_api_configured": bool(os.getenv("OPENAI_API_KEY")),
+            "serpapi_configured": bool(os.getenv("SERPAPI_API_KEY")),
+            "fallback_enabled": bool(os.getenv("OPENAI_API_KEY"))
+        }
     }
 
 
