@@ -8,7 +8,6 @@ import {
   Wand2,
   ArrowLeft,
   Loader2,
-  Home,
   ShoppingCart,
 } from "lucide-react";
 
@@ -143,29 +142,20 @@ export default function HomePage() {
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-5">
           <div className="flex items-center justify-between gap-2">
             <motion.div
-              className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0 flex-1 group"
+              className="flex items-center cursor-pointer min-w-0 flex-1 group"
               onClick={handleReset}
-              whileHover={{ scale: 1.02, x: 2 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
             >
-              <motion.div
-                className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl liquid-ios26-button flex-shrink-0"
-                whileHover={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 0.5 }}
-              >
-                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              </motion.div>
-              <div className="min-w-0 flex items-center">
-                <Image
-                  src="/logo-8.png"
-                  alt="Aedis - Design d'intérieur IA"
-                  width={120}
-                  height={40}
-                  className="h-8 sm:h-10 md:h-12 w-auto object-contain"
-                  priority
-                />
-              </div>
+              <Image
+                src="/logo-8.png"
+                alt="Aedis - Design d'intérieur IA"
+                width={200}
+                height={60}
+                className="h-12 sm:h-16 md:h-20 w-auto object-contain transition-opacity group-hover:opacity-90"
+                priority
+              />
             </motion.div>
 
             {appState === "result" && (
