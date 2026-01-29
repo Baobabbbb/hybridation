@@ -255,9 +255,8 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   // Memoize canvas style to prevent re-renders
   const canvasStyle = useMemo(() => ({ 
     background: "#f5f5f5",
-    cursor: "grab",
-    pointerEvents: showSelectionOverlay ? "none" : "auto"
-  }), [showSelectionOverlay]);
+    cursor: "grab"
+  }), []);
 
   return (
     <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white/20">
@@ -271,94 +270,93 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       )}
 
-      {/* Mode toggle buttons - Responsive - Always visible above overlay */}
-      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-50 pointer-events-auto" style={{ pointerEvents: 'auto' }}>
-        <div className="flex flex-col sm:flex-row rounded-lg sm:rounded-xl overflow-hidden bg-white/90 sm:bg-white/85 backdrop-blur-md border border-black/10 shadow-lg pointer-events-auto" style={{ pointerEvents: 'auto' }}>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMode("navigate");
-              setShowSelectionOverlay(false);
-            }}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all pointer-events-auto ${
-              mode === "navigate" && !showSelectionOverlay
-                ? "bg-primary/20 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-black/5"
-            }`}
-          >
-            <Move3D className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="whitespace-nowrap">Navigation</span>
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleSelectMode();
-            }}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all pointer-events-auto ${
-              showSelectionOverlay
-                ? "bg-primary/80 text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-black/5"
-            }`}
-          >
-            <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="whitespace-nowrap">Sélectionner</span>
-          </button>
-        </div>
+      {/* Three.js Canvas - wrapped to not capture all events */}
+      <div className="absolute inset-0 z-0">
+        <Canvas
+          camera={{
+            fov: 75,
+            position: [0, 0, 0.1],
+            near: 0.1,
+            far: 1000,
+          }}
+          style={canvasStyle}
+          dpr={[1, 2]}
+          gl={{ 
+            antialias: true,
+            powerPreference: "high-performance",
+            preserveDrawingBuffer: true,
+          }}
+        >
+          <Suspense fallback={<LoadingFallback />}>
+            <SphereViewer imageUrl={imageUrl} />
+            <CanvasCapture
+              onCapture={handleCapture}
+              captureRequested={captureRequested}
+              onCaptureComplete={handleCaptureComplete}
+            />
+          </Suspense>
+
+          {/* Orbit controls for navigation - optimized for fluidity */}
+          <OrbitControls
+            enabled={!showSelectionOverlay}
+            enableZoom={true}
+            enablePan={false}
+            rotateSpeed={-0.4}
+            zoomSpeed={0.6}
+            minDistance={0.1}
+            maxDistance={4}
+            target={[0, 0, 0]}
+            enableDamping={true}
+            dampingFactor={0.08}
+          />
+        </Canvas>
       </div>
 
-      {/* Mode instructions - Responsive */}
-      {!showSelectionOverlay && (
-        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 pointer-events-none max-w-[calc(100%-120px)] sm:max-w-none">
-          <div className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-full backdrop-blur-sm text-[10px] sm:text-xs bg-white/90 sm:bg-white/85 text-foreground">
-            <span className="hidden sm:inline">🖱️ Glissez pour explorer • Cliquez sur "Sélectionner" pour choisir un meuble</span>
-            <span className="sm:hidden">🖱️ Glissez • "Sélectionner" pour choisir</span>
+      {/* UI Layer - completely separate from Canvas */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        {/* Mode toggle buttons - Responsive */}
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 pointer-events-auto">
+          <div className="flex flex-col sm:flex-row rounded-lg sm:rounded-xl overflow-hidden bg-white/90 sm:bg-white/85 backdrop-blur-md border border-black/10 shadow-lg">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("navigate");
+                setShowSelectionOverlay(false);
+              }}
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all ${
+                mode === "navigate" && !showSelectionOverlay
+                  ? "bg-primary/20 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-black/5"
+              }`}
+            >
+              <Move3D className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">Navigation</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleSelectMode}
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all ${
+                showSelectionOverlay
+                  ? "bg-primary/80 text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-black/5"
+              }`}
+            >
+              <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">Sélectionner</span>
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Three.js Canvas */}
-      <Canvas
-        camera={{
-          fov: 75,
-          position: [0, 0, 0.1],
-          near: 0.1,
-          far: 1000,
-        }}
-        style={canvasStyle}
-        dpr={[1, 2]}
-        gl={{ 
-          antialias: true,
-          powerPreference: "high-performance",
-          preserveDrawingBuffer: true,
-        }}
-      >
-        <Suspense fallback={<LoadingFallback />}>
-          <SphereViewer imageUrl={imageUrl} />
-          <CanvasCapture
-            onCapture={handleCapture}
-            captureRequested={captureRequested}
-            onCaptureComplete={handleCaptureComplete}
-          />
-        </Suspense>
-
-        {/* Orbit controls for navigation - optimized for fluidity */}
-        <OrbitControls
-          enabled={!showSelectionOverlay}
-          enableZoom={true}
-          enablePan={false}
-          rotateSpeed={-0.4}
-          zoomSpeed={0.6}
-          minDistance={0.1}
-          maxDistance={4}
-          target={[0, 0, 0]}
-          enableDamping={true}
-          dampingFactor={0.08}
-        />
-      </Canvas>
+        {/* Mode instructions - Responsive */}
+        {!showSelectionOverlay && (
+          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 max-w-[calc(100%-120px)] sm:max-w-none">
+            <div className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-full backdrop-blur-sm text-[10px] sm:text-xs bg-white/90 sm:bg-white/85 text-foreground">
+              <span className="hidden sm:inline">🖱️ Glissez pour explorer • Cliquez sur "Sélectionner" pour choisir un meuble</span>
+              <span className="sm:hidden">🖱️ Glissez • "Sélectionner" pour choisir</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Selection Overlay */}
       {showSelectionOverlay && capturedImage && (
