@@ -237,6 +237,7 @@ export default function HomePage() {
                     ease: [0.23, 1, 0.32, 1]
                   }}
                   className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4 px-2 liquid-text"
+                  style={{ fontFamily: 'var(--font-great-vibes), cursive' }}
                 >
                   Transformez vos
                   <br />
@@ -449,6 +450,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 className="text-2xl sm:text-3xl font-bold mb-3 liquid-text"
+                style={{ fontFamily: 'var(--font-great-vibes), cursive' }}
               >
                 Création de votre pièce
               </motion.h3>
@@ -565,6 +567,7 @@ export default function HomePage() {
                     ease: [0.23, 1, 0.32, 1]
                   }}
                   className="text-2xl sm:text-3xl font-bold mb-2 liquid-text"
+                  style={{ fontFamily: 'var(--font-great-vibes), cursive' }}
                 >
                   Votre pièce meublée
                 </motion.h2>
