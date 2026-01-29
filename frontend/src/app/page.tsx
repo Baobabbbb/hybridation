@@ -47,7 +47,6 @@ const STYLE_SUGGESTIONS = [
   "Luxe art déco",
   "Contemporain épuré",
   "Campagne française",
-  "Côtier méditerranéen",
 ];
 
 export default function HomePage() {
