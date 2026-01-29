@@ -27,6 +27,10 @@ Une fois la pièce générée, vous pouvez :
 - **Sélectionner** : Cliquer sur "Sélectionner" puis dessiner un rectangle autour d'un meuble qui vous plaît
 - **Acheter** : Consulter une liste de produits similaires disponibles en ligne avec leurs prix et liens d'achat
 
+
+
+
+
 ## Technologies utilisées
 
 Aedis utilise des technologies modernes pour offrir une expérience fluide :
