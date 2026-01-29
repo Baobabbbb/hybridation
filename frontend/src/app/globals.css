@@ -202,6 +202,14 @@
     display: none;
   }
 
+  /* Variant without hover effects */
+  .liquid-ios26-no-hover:hover {
+    transform: none;
+    border-radius: inherit;
+    box-shadow: inherit;
+    background: inherit;
+  }
+
   @keyframes glare-move {
     0%, 100% { 
       transform: translate(0, 0) scale(1); 
@@ -409,5 +417,19 @@
 
   .animate-subtle-pulse {
     animation: subtle-pulse 3s ease-in-out infinite;
+  }
+
+  /* Breathing animation - très légère */
+  @keyframes breathing {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+
+  .animate-breathing {
+    animation: breathing 4s ease-in-out infinite;
   }
 }

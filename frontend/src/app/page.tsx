@@ -293,7 +293,7 @@ export default function HomePage() {
                 ].map((feature) => (
                   <div 
                     key={feature.label}
-                    className="p-4 sm:p-5 md:p-6 liquid-ios26 rounded-xl"
+                    className="p-4 sm:p-5 md:p-6 liquid-ios26 liquid-ios26-no-hover rounded-xl animate-breathing"
                   >
                     <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">
                       {feature.icon}
