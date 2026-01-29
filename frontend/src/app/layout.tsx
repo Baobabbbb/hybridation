@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   description:
     "Téléchargez votre plan architectural et regardez l'IA le transformer en une pièce meublée photoréaliste. Cliquez sur n'importe quel meuble pour trouver de vrais produits à acheter.",
   keywords: ["IA", "design d'intérieur", "plan architectural", "meubles", "achat", "décoration"],
+  icons: {
+    icon: [{ url: "/icon.png", sizes: "32x32", type: "image/png" }],
+    apple: [{ url: "/icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
