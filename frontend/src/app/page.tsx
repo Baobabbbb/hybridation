@@ -19,6 +19,7 @@ import { UploadDropzone } from "@/components/upload-dropzone";
 import { ImageCropper } from "@/components/image-cropper";
 import { ProductSheet } from "@/components/product-sheet";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { generateFurnishedRoom, searchProducts, type Product } from "@/lib/api";
 
 // Dynamic import for Scene360 (Three.js needs client-side only)
@@ -155,9 +156,15 @@ export default function HomePage() {
               >
                 <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </motion.div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold tracking-tight liquid-text truncate group-hover:text-primary transition-colors duration-300">Aedis</h1>
-                <p className="text-[10px] sm:text-xs liquid-text-muted hidden sm:block">Design d'intérieur IA</p>
+              <div className="min-w-0 flex items-center">
+                <Image
+                  src="/logo-8.png"
+                  alt="Aedis - Design d'intérieur IA"
+                  width={120}
+                  height={40}
+                  className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+                  priority
+                />
               </div>
             </motion.div>
 
