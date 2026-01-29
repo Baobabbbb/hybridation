@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Great_Vibes } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const greatVibes = Great_Vibes({
-  variable: "--font-great-vibes",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -34,7 +34,8 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${greatVibes.variable} font-sans antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} font-serif antialiased`}
+        style={{ fontFamily: 'var(--font-playfair), serif' }}
       >
         {children}
         <Toaster position="bottom-right" richColors />
