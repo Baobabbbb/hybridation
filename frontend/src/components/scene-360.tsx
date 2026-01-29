@@ -130,7 +130,7 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
   );
 
   return (
-    <div className="absolute inset-0 z-20 bg-white/98 flex flex-col">
+    <div className="absolute inset-0 bg-white/98 flex flex-col" style={{ zIndex: 40 }}>
       {/* Header with close button - larger touch target */}
       <div className="flex items-center justify-between p-3 sm:p-4 border-b border-black/10">
         <div className="flex items-center gap-2 text-foreground min-w-0 flex-1">
@@ -255,56 +255,58 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       )}
 
-      {/* Three.js Canvas */}
-      <div className="absolute inset-0 z-0">
-        <Canvas
-          camera={{
-            fov: 75,
-            position: [0, 0, 0.1],
-            near: 0.1,
-            far: 1000,
-          }}
-          style={canvasStyle}
-          dpr={[1, 2]}
-          gl={{ 
-            antialias: true,
-            powerPreference: "high-performance",
-            preserveDrawingBuffer: true,
-          }}
-        >
-          <Suspense fallback={<LoadingFallback />}>
-            <SphereViewer imageUrl={imageUrl} />
-            <CanvasCapture
-              onCapture={handleCapture}
-              captureRequested={captureRequested}
-              onCaptureComplete={handleCaptureComplete}
-            />
-          </Suspense>
-
-          <OrbitControls
-            enabled={!showSelectionOverlay}
-            enableZoom={true}
-            enablePan={false}
-            rotateSpeed={-0.4}
-            zoomSpeed={0.6}
-            minDistance={0.1}
-            maxDistance={4}
-            target={[0, 0, 0]}
-            enableDamping={true}
-            dampingFactor={0.08}
-          />
-        </Canvas>
-      </div>
-
-      {/* Mode toggle buttons - ALWAYS on top with large touch targets */}
-      <div 
-        className="absolute top-3 left-3 sm:top-4 sm:left-4 z-50"
-        style={{ pointerEvents: 'auto' }}
+      {/* Three.js Canvas - z-0 so buttons can be on top */}
+      <Canvas
+        camera={{
+          fov: 75,
+          position: [0, 0, 0.1],
+          near: 0.1,
+          far: 1000,
+        }}
+        style={{ ...canvasStyle, position: 'absolute', inset: 0, zIndex: 0 }}
+        dpr={[1, 2]}
+        gl={{ 
+          antialias: true,
+          powerPreference: "high-performance",
+          preserveDrawingBuffer: true,
+        }}
       >
-        <div className="flex rounded-xl overflow-hidden bg-white/95 backdrop-blur-md border border-black/10 shadow-xl">
+        <Suspense fallback={<LoadingFallback />}>
+          <SphereViewer imageUrl={imageUrl} />
+          <CanvasCapture
+            onCapture={handleCapture}
+            captureRequested={captureRequested}
+            onCaptureComplete={handleCaptureComplete}
+          />
+        </Suspense>
+
+        <OrbitControls
+          enabled={!showSelectionOverlay}
+          enableZoom={true}
+          enablePan={false}
+          rotateSpeed={-0.4}
+          zoomSpeed={0.6}
+          minDistance={0.1}
+          maxDistance={4}
+          target={[0, 0, 0]}
+          enableDamping={true}
+          dampingFactor={0.08}
+        />
+      </Canvas>
+
+      {/* Mode toggle buttons - z-50 to be above Canvas */}
+      <div 
+        className="absolute top-3 left-3 sm:top-4 sm:left-4"
+        style={{ zIndex: 50, pointerEvents: 'auto' }}
+      >
+        <div 
+          className="flex rounded-xl overflow-hidden bg-white/95 backdrop-blur-md border border-black/10 shadow-xl"
+          style={{ pointerEvents: 'auto' }}
+        >
           <button
             type="button"
             onClick={handleCloseOverlay}
+            style={{ pointerEvents: 'auto' }}
             className={`flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5 text-sm sm:text-base font-medium transition-all min-h-[48px] ${
               mode === "navigate" && !showSelectionOverlay
                 ? "bg-primary/20 text-primary"
@@ -317,6 +319,7 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           <button
             type="button"
             onClick={handleSelectMode}
+            style={{ pointerEvents: 'auto' }}
             className={`flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5 text-sm sm:text-base font-medium transition-all min-h-[48px] ${
               showSelectionOverlay
                 ? "bg-primary text-primary-foreground"
@@ -338,7 +341,7 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       )}
 
-      {/* Selection Overlay */}
+      {/* Selection Overlay - z-20 so buttons can still be above */}
       {showSelectionOverlay && capturedImage && (
         <SelectionOverlay
           capturedImage={capturedImage}
