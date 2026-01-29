@@ -139,7 +139,7 @@ export default function HomePage() {
         transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         className="sticky top-0 z-50 mt-1 sm:mt-2"
       >
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-5">
+        <div className="container mx-auto px-3 sm:px-4 py-1 sm:py-2">
           <div className="flex items-center justify-between gap-2">
             <motion.div
               className="flex items-center cursor-pointer min-w-0 flex-1 group"
@@ -151,9 +151,9 @@ export default function HomePage() {
               <Image
                 src="/logo-8.png"
                 alt="Aedis - Design d'intérieur IA"
-                width={200}
-                height={60}
-                className="h-12 sm:h-16 md:h-20 w-auto object-contain transition-opacity group-hover:opacity-90"
+                width={250}
+                height={75}
+                className="h-16 sm:h-20 md:h-24 w-auto object-contain transition-opacity group-hover:opacity-90"
                 priority
               />
             </motion.div>
