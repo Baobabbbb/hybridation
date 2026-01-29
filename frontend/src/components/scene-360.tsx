@@ -82,15 +82,14 @@ function LoadingFallback() {
   );
 }
 
-// ==================== SELECTION OVERLAY COMPONENT ====================
+// ==================== SELECTION VIEW COMPONENT ====================
 
-interface SelectionOverlayProps {
+interface SelectionViewProps {
   capturedImage: string;
   onCropComplete: (croppedImageBase64: string) => void;
-  onClose: () => void;
 }
 
-function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionOverlayProps) {
+function SelectionView({ capturedImage, onCropComplete }: SelectionViewProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<Crop>();
   const [isSelecting, setIsSelecting] = useState(false);
@@ -130,29 +129,18 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
   );
 
   return (
-    <div className="absolute inset-0 bg-white/98 flex flex-col" style={{ zIndex: 40 }}>
-      {/* Header with close button - larger touch target */}
-      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-black/10">
-        <div className="flex items-center gap-2 text-foreground min-w-0 flex-1">
-          <MousePointer2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-          <span className="text-sm sm:text-base font-medium truncate">Dessinez un rectangle autour du meuble</span>
-        </div>
-        {/* Close button - much larger touch target */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-3 sm:p-3 rounded-xl bg-black/10 hover:bg-black/20 active:bg-black/30 text-foreground transition-colors flex-shrink-0 ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Fermer et retourner à la navigation"
-        >
-          <X className="w-5 h-5 sm:w-6 sm:h-6" />
-        </button>
+    <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white border border-black/10 flex flex-col">
+      {/* Header */}
+      <div className="flex items-center gap-2 p-3 sm:p-4 border-b border-black/10 bg-muted/30">
+        <MousePointer2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 text-primary" />
+        <span className="text-sm sm:text-base font-medium">Dessinez un rectangle autour du meuble à rechercher</span>
       </div>
 
       {/* Crop area */}
-      <div className="flex-1 overflow-auto p-3 sm:p-4 flex items-center justify-center">
-        <div className="relative max-w-full max-h-full w-full">
+      <div className="flex-1 overflow-auto p-3 sm:p-4 flex items-center justify-center bg-muted/10">
+        <div className="relative max-w-full max-h-full">
           {isSelecting && (
-            <div className="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/90 text-primary-foreground text-xs font-medium">
+            <div className="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
               <div className="w-2 h-2 rounded-full bg-primary-foreground" />
               <span>Sélection...</span>
             </div>
@@ -164,32 +152,17 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
             onComplete={handleCropComplete}
             onDragStart={() => setIsSelecting(true)}
             onDragEnd={() => setIsSelecting(false)}
-            className="rounded-lg overflow-hidden w-full"
+            className="rounded-lg overflow-hidden"
           >
             <img
               ref={imgRef}
               src={capturedImage}
               alt="Vue 360° capturée"
-              className="max-w-full max-h-[50vh] sm:max-h-[60vh] object-contain w-full h-auto"
+              className="max-w-full max-h-[calc(100vh-350px)] object-contain"
               crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
-      </div>
-
-      {/* Instructions + Back button */}
-      <div className="p-3 sm:p-4 border-t border-black/10 flex items-center justify-between gap-4">
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/10 hover:bg-black/20 active:bg-black/30 text-foreground transition-colors text-sm font-medium min-h-[44px]"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Retour</span>
-        </button>
-        <p className="text-muted-foreground text-xs sm:text-sm text-right flex-1">
-          Dessinez un rectangle pour sélectionner
-        </p>
       </div>
     </div>
   );
@@ -202,7 +175,6 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   const [mode, setMode] = useState<ViewMode>("navigate");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [captureRequested, setCaptureRequested] = useState(false);
-  const [showSelectionOverlay, setShowSelectionOverlay] = useState(false);
 
   useEffect(() => {
     const img = new Image();
@@ -213,7 +185,6 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
 
   const handleCapture = useCallback((dataUrl: string) => {
     setCapturedImage(dataUrl);
-    setShowSelectionOverlay(true);
   }, []);
 
   const handleCaptureComplete = useCallback(() => {
@@ -225,6 +196,11 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
     setCaptureRequested(true);
   }, []);
 
+  const handleNavigateMode = useCallback(() => {
+    setMode("navigate");
+    setCapturedImage(null);
+  }, []);
+
   const handleCropComplete = useCallback(
     (croppedImageBase64: string) => {
       onSelectProduct(croppedImageBase64);
@@ -232,85 +208,23 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
     [onSelectProduct]
   );
 
-  const handleCloseOverlay = useCallback(() => {
-    setShowSelectionOverlay(false);
-    setCapturedImage(null);
-    setMode("navigate");
-  }, []);
-
   const canvasStyle = useMemo(() => ({ 
     background: "#f5f5f5",
     cursor: "grab"
   }), []);
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white/20">
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-          <div className="text-foreground text-center px-4">
-            <div className="w-8 h-8 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-sm">Chargement de la vue 360°...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Three.js Canvas - z-0 so buttons can be on top */}
-      <Canvas
-        camera={{
-          fov: 75,
-          position: [0, 0, 0.1],
-          near: 0.1,
-          far: 1000,
-        }}
-        style={{ ...canvasStyle, position: 'absolute', inset: 0, zIndex: 0 }}
-        dpr={[1, 2]}
-        gl={{ 
-          antialias: true,
-          powerPreference: "high-performance",
-          preserveDrawingBuffer: true,
-        }}
-      >
-        <Suspense fallback={<LoadingFallback />}>
-          <SphereViewer imageUrl={imageUrl} />
-          <CanvasCapture
-            onCapture={handleCapture}
-            captureRequested={captureRequested}
-            onCaptureComplete={handleCaptureComplete}
-          />
-        </Suspense>
-
-        <OrbitControls
-          enabled={!showSelectionOverlay}
-          enableZoom={true}
-          enablePan={false}
-          rotateSpeed={-0.4}
-          zoomSpeed={0.6}
-          minDistance={0.1}
-          maxDistance={4}
-          target={[0, 0, 0]}
-          enableDamping={true}
-          dampingFactor={0.08}
-        />
-      </Canvas>
-
-      {/* Mode toggle buttons - z-50 to be above Canvas */}
-      <div 
-        className="absolute top-3 left-3 sm:top-4 sm:left-4"
-        style={{ zIndex: 50, pointerEvents: 'auto' }}
-      >
-        <div 
-          className="flex rounded-xl overflow-hidden bg-white/95 backdrop-blur-md border border-black/10 shadow-xl"
-          style={{ pointerEvents: 'auto' }}
-        >
+    <div className="space-y-4">
+      {/* Buttons OUTSIDE the 360 view - always accessible */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex rounded-xl overflow-hidden bg-white border border-black/10 shadow-md">
           <button
             type="button"
-            onClick={handleCloseOverlay}
-            style={{ pointerEvents: 'auto' }}
-            className={`flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5 text-sm sm:text-base font-medium transition-all min-h-[48px] ${
-              mode === "navigate" && !showSelectionOverlay
-                ? "bg-primary/20 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-black/5 active:bg-black/10"
+            onClick={handleNavigateMode}
+            className={`flex items-center justify-center gap-2 px-5 py-3 text-sm sm:text-base font-medium transition-colors ${
+              mode === "navigate"
+                ? "bg-primary text-primary-foreground"
+                : "bg-white text-muted-foreground hover:text-foreground hover:bg-muted/50"
             }`}
           >
             <Move3D className="w-5 h-5" />
@@ -319,35 +233,85 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           <button
             type="button"
             onClick={handleSelectMode}
-            style={{ pointerEvents: 'auto' }}
-            className={`flex items-center justify-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5 text-sm sm:text-base font-medium transition-all min-h-[48px] ${
-              showSelectionOverlay
+            className={`flex items-center justify-center gap-2 px-5 py-3 text-sm sm:text-base font-medium transition-colors ${
+              mode === "select"
                 ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-black/5 active:bg-black/10"
+                : "bg-white text-muted-foreground hover:text-foreground hover:bg-muted/50"
             }`}
           >
             <Camera className="w-5 h-5" />
             <span>Sélectionner</span>
           </button>
         </div>
+
+        {/* Instructions */}
+        <p className="text-sm text-muted-foreground">
+          {mode === "navigate" 
+            ? "🖱️ Glissez pour explorer la vue 360°" 
+            : "✏️ Dessinez un rectangle sur le meuble"}
+        </p>
       </div>
 
-      {/* Mode instructions */}
-      {!showSelectionOverlay && (
-        <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-10 pointer-events-none">
-          <div className="text-center px-4 py-2.5 rounded-xl backdrop-blur-sm text-sm bg-white/90 text-foreground shadow-lg">
-            🖱️ Glissez pour explorer la vue 360° • Cliquez sur "Sélectionner" pour choisir un meuble
-          </div>
-        </div>
-      )}
+      {/* Content area */}
+      {mode === "navigate" ? (
+        /* 360° View */
+        <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white/20 border border-black/10">
+          {/* Loading overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+              <div className="text-foreground text-center px-4">
+                <div className="w-8 h-8 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-sm">Chargement de la vue 360°...</p>
+              </div>
+            </div>
+          )}
 
-      {/* Selection Overlay - z-20 so buttons can still be above */}
-      {showSelectionOverlay && capturedImage && (
-        <SelectionOverlay
-          capturedImage={capturedImage}
-          onCropComplete={handleCropComplete}
-          onClose={handleCloseOverlay}
-        />
+          {/* Three.js Canvas */}
+          <Canvas
+            camera={{
+              fov: 75,
+              position: [0, 0, 0.1],
+              near: 0.1,
+              far: 1000,
+            }}
+            style={canvasStyle}
+            dpr={[1, 2]}
+            gl={{ 
+              antialias: true,
+              powerPreference: "high-performance",
+              preserveDrawingBuffer: true,
+            }}
+          >
+            <Suspense fallback={<LoadingFallback />}>
+              <SphereViewer imageUrl={imageUrl} />
+              <CanvasCapture
+                onCapture={handleCapture}
+                captureRequested={captureRequested}
+                onCaptureComplete={handleCaptureComplete}
+              />
+            </Suspense>
+
+            <OrbitControls
+              enableZoom={true}
+              enablePan={false}
+              rotateSpeed={-0.4}
+              zoomSpeed={0.6}
+              minDistance={0.1}
+              maxDistance={4}
+              target={[0, 0, 0]}
+              enableDamping={true}
+              dampingFactor={0.08}
+            />
+          </Canvas>
+        </div>
+      ) : (
+        /* Selection View */
+        capturedImage && (
+          <SelectionView
+            capturedImage={capturedImage}
+            onCropComplete={handleCropComplete}
+          />
+        )
       )}
     </div>
   );
