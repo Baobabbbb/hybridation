@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   Loader2,
   ShoppingCart,
+  Download,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,20 @@ export default function HomePage() {
   // Handle file clear
   const handleFileClear = useCallback(() => {
     setSelectedFile(null);
+  }, []);
+
+  // Handle test image download and load
+  const handleTestImage = useCallback(async (imageName: string, displayName: string) => {
+    try {
+      const response = await fetch(`/${imageName}`);
+      const blob = await response.blob();
+      const file = new File([blob], imageName, { type: blob.type });
+      setSelectedFile(file);
+      toast.success(`${displayName} chargé avec succès !`);
+    } catch (error) {
+      console.error("Failed to load test image:", error);
+      toast.error("Erreur lors du chargement de l'image de test");
+    }
   }, []);
 
   // Handle generation
@@ -277,6 +292,37 @@ export default function HomePage() {
                     selectedFile={selectedFile}
                     onClear={handleFileClear}
                   />
+
+                  {/* Test Images Section */}
+                  {!selectedFile && (
+                    <div className="space-y-2 sm:space-y-3">
+                      <label className="text-xs sm:text-sm font-medium text-muted-foreground text-center block">
+                        Ou essayez avec une image de test :
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <motion.button
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          onClick={() => handleTestImage("plan-test.jpg", "Plan de test")}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-xl liquid-ios26-button text-sm sm:text-base font-medium transition-all hover:scale-105"
+                        >
+                          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                          <span>Plan de test</span>
+                        </motion.button>
+                        <motion.button
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.35 }}
+                          onClick={() => handleTestImage("chambre.jpg", "Chambre de test")}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-xl liquid-ios26-button text-sm sm:text-base font-medium transition-all hover:scale-105"
+                        >
+                          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                          <span>Chambre de test</span>
+                        </motion.button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Style Input - Responsive */}
                   <div className="space-y-2 sm:space-y-3">
