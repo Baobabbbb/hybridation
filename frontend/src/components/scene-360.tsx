@@ -6,7 +6,6 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { MousePointer2, Move3D, Camera, X } from "lucide-react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
-import { motion, AnimatePresence } from "framer-motion";
 import "react-image-crop/dist/ReactCrop.css";
 
 // ==================== TYPES ====================
@@ -101,6 +100,12 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<Crop>();
   const [isSelecting, setIsSelecting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger fade-in on mount
+  useEffect(() => {
+    requestAnimationFrame(() => setIsVisible(true));
+  }, []);
 
   const handleCropComplete = useCallback(
     (c: PixelCrop) => {
@@ -137,11 +142,10 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute inset-0 z-30 bg-white/95 flex flex-col"
+    <div
+      className={`absolute inset-0 z-30 bg-white/95 flex flex-col transition-opacity duration-150 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
     >
       {/* Header - Responsive */}
       <div className="flex items-center justify-between p-2 sm:p-4 border-b border-black/10">
@@ -161,24 +165,13 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
       {/* Crop area - Responsive */}
       <div className="flex-1 overflow-auto p-2 sm:p-4 flex items-center justify-center">
         <div className="relative max-w-full max-h-full w-full">
-          {/* Selecting indicator */}
-          <AnimatePresence>
-            {isSelecting && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-medium"
-              >
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary-foreground"
-                />
-                <span className="whitespace-nowrap">Sélection...</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Selecting indicator - Simple CSS transition */}
+          {isSelecting && (
+            <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-medium">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary-foreground" />
+              <span className="whitespace-nowrap">Sélection...</span>
+            </div>
+          )}
 
           <ReactCrop
             crop={crop}
@@ -205,7 +198,7 @@ function SelectionOverlay({ capturedImage, onCropComplete, onClose }: SelectionO
           Cliquez et glissez pour sélectionner le meuble que vous souhaitez rechercher
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -343,31 +336,29 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           />
         </Suspense>
 
-        {/* Orbit controls for navigation - always enabled */}
+        {/* Orbit controls for navigation - optimized for fluidity */}
         <OrbitControls
           enabled={!showSelectionOverlay}
           enableZoom={true}
           enablePan={false}
-          rotateSpeed={-0.3}
-          zoomSpeed={0.5}
+          rotateSpeed={-0.4}
+          zoomSpeed={0.6}
           minDistance={0.1}
           maxDistance={4}
           target={[0, 0, 0]}
           enableDamping={true}
-          dampingFactor={0.05}
+          dampingFactor={0.08}
         />
       </Canvas>
 
       {/* Selection Overlay */}
-      <AnimatePresence>
-        {showSelectionOverlay && capturedImage && (
-          <SelectionOverlay
-            capturedImage={capturedImage}
-            onCropComplete={handleCropComplete}
-            onClose={handleCloseOverlay}
-          />
-        )}
-      </AnimatePresence>
+      {showSelectionOverlay && capturedImage && (
+        <SelectionOverlay
+          capturedImage={capturedImage}
+          onCropComplete={handleCropComplete}
+          onClose={handleCloseOverlay}
+        />
+      )}
     </div>
   );
 }

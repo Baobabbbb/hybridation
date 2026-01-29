@@ -45,6 +45,9 @@ const STYLE_SUGGESTIONS = [
   "Bohème éclectique",
   "Zen japonais",
   "Luxe art déco",
+  "Contemporain épuré",
+  "Campagne française",
+  "Côtier méditerranéen",
 ];
 
 export default function HomePage() {
