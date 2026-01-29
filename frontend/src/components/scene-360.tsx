@@ -277,8 +277,8 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </div>
       )}
 
-      {/* Mode toggle buttons - Responsive */}
-      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20">
+      {/* Mode toggle buttons - Responsive - Always visible above overlay */}
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-40">
         <div className="flex flex-col sm:flex-row rounded-lg sm:rounded-xl overflow-hidden bg-white/90 sm:bg-white/85 backdrop-blur-md border border-black/10 shadow-lg">
           <button
             onClick={() => {
