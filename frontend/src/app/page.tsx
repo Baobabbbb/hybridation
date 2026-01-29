@@ -151,7 +151,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-background flex flex-col">
       {/* Header - Transparent */}
       <header className="sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-1 sm:py-2">
+        <div className="container mx-auto px-3 sm:px-4 py-0">
           <div className="flex items-center justify-between gap-2">
             <div
               className="flex items-center cursor-pointer min-w-0 flex-1 group"
@@ -186,7 +186,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-3 sm:px-4 pt-2 sm:pt-3 pb-8 sm:pb-12 md:pb-20 flex-1">
+      <div className="container mx-auto px-3 sm:px-4 pt-0 pb-8 sm:pb-12 md:pb-20 flex-1">
         <AnimatePresence mode="wait" initial={false}>
           {/* Upload State */}
           {appState === "upload" && (
