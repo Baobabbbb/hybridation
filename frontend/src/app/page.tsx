@@ -327,13 +327,13 @@ export default function HomePage() {
                     transition={{ delay: 0.4, duration: 0.5 }}
                   >
                     <Button
-                      className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium liquid-ios26-button transition-spring group relative overflow-hidden"
+                      className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium transition-spring group relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl"
                       size="lg"
                       onClick={handleGenerate}
                       disabled={!selectedFile || !style.trim()}
                     >
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        className="absolute inset-0 bg-gradient-to-r from-white/20 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                         initial={{ x: "-100%" }}
                         whileHover={{ x: "100%" }}
                         transition={{ duration: 0.6 }}
