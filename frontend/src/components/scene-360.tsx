@@ -255,8 +255,9 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   // Memoize canvas style to prevent re-renders
   const canvasStyle = useMemo(() => ({ 
     background: "#f5f5f5",
-    cursor: "grab"
-  }), []);
+    cursor: "grab",
+    pointerEvents: showSelectionOverlay ? "none" : "auto"
+  }), [showSelectionOverlay]);
 
   return (
     <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white/20">
@@ -271,14 +272,17 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
       )}
 
       {/* Mode toggle buttons - Responsive - Always visible above overlay */}
-      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-40">
-        <div className="flex flex-col sm:flex-row rounded-lg sm:rounded-xl overflow-hidden bg-white/90 sm:bg-white/85 backdrop-blur-md border border-black/10 shadow-lg">
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-50 pointer-events-auto" style={{ pointerEvents: 'auto' }}>
+        <div className="flex flex-col sm:flex-row rounded-lg sm:rounded-xl overflow-hidden bg-white/90 sm:bg-white/85 backdrop-blur-md border border-black/10 shadow-lg pointer-events-auto" style={{ pointerEvents: 'auto' }}>
           <button
-            onClick={() => {
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               setMode("navigate");
               setShowSelectionOverlay(false);
             }}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all pointer-events-auto ${
               mode === "navigate" && !showSelectionOverlay
                 ? "bg-primary/20 text-primary"
                 : "text-muted-foreground hover:text-foreground hover:bg-black/5"
@@ -288,8 +292,13 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
             <span className="whitespace-nowrap">Navigation</span>
           </button>
           <button
-            onClick={handleSelectMode}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all ${
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSelectMode();
+            }}
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all pointer-events-auto ${
               showSelectionOverlay
                 ? "bg-primary/80 text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-black/5"
