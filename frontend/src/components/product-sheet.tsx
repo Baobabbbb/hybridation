@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Sheet,
   SheetContent,
@@ -46,140 +45,114 @@ export function ProductSheet({
 
         {/* Cropped image preview */}
         {croppedImage && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-3 rounded-lg liquid-ios26"
-          >
+          <div className="mb-6 p-3 rounded-lg bg-muted/50">
             <p className="text-xs text-muted-foreground mb-2">Recherche de :</p>
             <img
               src={croppedImage}
               alt="Meuble sélectionné"
               className="w-full max-h-32 object-contain rounded-md"
             />
-          </motion.div>
+          </div>
         )}
 
-        {/* Loading state */}
+        {/* Loading state - simple, no animations */}
         {isLoading && (
           <div className="space-y-4">
             {[...Array(4)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex gap-4">
-                      <Skeleton className="w-20 h-20 rounded-lg flex-shrink-0" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                        <Skeleton className="h-6 w-20" />
-                      </div>
+              <Card key={i}>
+                <CardContent className="p-4">
+                  <div className="flex gap-4">
+                    <Skeleton className="w-20 h-20 rounded-lg flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-6 w-20" />
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
 
         {/* Error state */}
         {error && !isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-12 text-center"
-          >
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="p-4 rounded-full bg-destructive/10 mb-4">
               <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
             <p className="text-sm text-muted-foreground">{error}</p>
-          </motion.div>
+          </div>
         )}
 
         {/* Empty state */}
         {!isLoading && !error && products.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-12 text-center"
-          >
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="p-4 rounded-full bg-muted mb-4">
               <Package className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground">
               Aucun produit correspondant trouvé. Essayez de sélectionner un autre élément.
             </p>
-          </motion.div>
+          </div>
         )}
 
-        {/* Products list */}
+        {/* Products list - no animations */}
         {!isLoading && !error && products.length > 0 && (
           <div className="space-y-4">
             {products.map((product, index) => (
-              <motion.div
-                key={`${product.link}-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Card className="overflow-hidden liquid-ios26 hover:border-primary/30 transition-spring">
-                  <CardContent className="p-4">
-                    <div className="flex gap-4">
-                      {(product.image || product.thumbnail) && (
-                        <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                          <img
-                            src={product.image || product.thumbnail}
-                            alt={product.title}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
-                          />
-                        </div>
+              <Card key={`${product.link}-${index}`} className="overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex gap-4">
+                    {(product.image || product.thumbnail) && (
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        <img
+                          src={product.image || product.thumbnail}
+                          alt={product.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm line-clamp-2 mb-1">
+                        {product.title}
+                      </h4>
+                      {product.source && (
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {product.source}
+                        </p>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm line-clamp-2 mb-1">
-                          {product.title}
-                        </h4>
-                        {product.source && (
-                          <p className="text-xs text-muted-foreground mb-2">
-                            {product.source}
-                          </p>
+                      <div className="flex items-center justify-between gap-2">
+                        {product.price && product.price !== "N/A" && (
+                          <span className="font-semibold text-primary">
+                            {typeof product.price === "number"
+                              ? `${product.currency || "$"}${product.price.toFixed(2)}`
+                              : product.price}
+                          </span>
                         )}
-                        <div className="flex items-center justify-between gap-2">
-                          {product.price && product.price !== "N/A" && (
-                            <span className="font-semibold text-primary">
-                              {typeof product.price === "number"
-                                ? `${product.currency || "$"}${product.price.toFixed(2)}`
-                                : product.price}
-                            </span>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="ml-auto liquid-ios26-button transition-spring"
-                            asChild
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="ml-auto"
+                          asChild
+                        >
+                          <a
+                            href={product.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <a
-                              href={product.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              Voir
-                            </a>
-                          </Button>
-                        </div>
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            Voir
+                          </a>
+                        </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
