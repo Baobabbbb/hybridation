@@ -20,7 +20,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Aedis | Transformez vos plans en réalité",
+  title: "Aedis",
   description:
     "Téléchargez votre plan architectural et regardez l'IA le transformer en une pièce meublée photoréaliste. Cliquez sur n'importe quel meuble pour trouver de vrais produits à acheter.",
   keywords: ["IA", "design d'intérieur", "plan architectural", "meubles", "achat", "décoration"],
