@@ -153,9 +153,11 @@ export default function HomePage() {
       <header className="sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-4 py-0">
           <div className="flex items-center justify-between gap-2">
-            <div
-              className="flex items-center cursor-pointer min-w-0 flex-1 group"
+            <button
+              type="button"
               onClick={handleReset}
+              className="shrink-0 p-0 border-0 bg-transparent cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+              aria-label="Retour à l'accueil"
             >
               <Image
                 src="/logo-8.png"
@@ -165,7 +167,7 @@ export default function HomePage() {
                 className="h-16 sm:h-20 md:h-24 w-auto object-contain transition-opacity group-hover:opacity-90"
                 priority
               />
-            </div>
+            </button>
 
             {appState === "result" && (
               <div className="flex-shrink-0">
