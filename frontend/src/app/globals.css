@@ -197,6 +197,11 @@
     will-change: transform, opacity;
   }
 
+  /* Variant without animation */
+  .liquid-ios26-no-animation::after {
+    display: none;
+  }
+
   @keyframes glare-move {
     0%, 100% { 
       transform: translate(0, 0) scale(1); 
