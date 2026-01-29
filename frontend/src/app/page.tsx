@@ -212,7 +212,7 @@ export default function HomePage() {
               </div>
 
               {/* Upload Card - Responsive avec plus d'espacement */}
-              <Card className="liquid-ios26 liquid-ios26-no-animation shadow-2xl">
+              <Card className="liquid-ios26 liquid-ios26-no-animation liquid-ios26-no-hover shadow-2xl">
                 <CardContent className="p-5 sm:p-6 md:p-8 lg:p-10 space-y-5 sm:space-y-6 md:space-y-8">
                   {/* Dropzone */}
                   <UploadDropzone
