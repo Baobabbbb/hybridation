@@ -25,7 +25,7 @@ import { generateFurnishedRoom, searchProducts, type Product } from "@/lib/api";
 const Scene360 = dynamic(() => import("@/components/scene-360"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[500px] md:h-[600px] rounded-xl bg-black/20 flex items-center justify-center">
+      <div className="w-full h-[500px] md:h-[600px] rounded-xl bg-white/20 flex items-center justify-center">
       <div className="text-center text-muted-foreground">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
         <p className="text-sm">Chargement de la vue 360°...</p>

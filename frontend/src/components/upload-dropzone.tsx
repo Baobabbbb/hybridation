@@ -90,7 +90,7 @@ export function UploadDropzone({
                 "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-spring",
                 isDragging
                   ? "liquid-ios26-strong border-primary/40 scale-[1.02]"
-                  : "liquid-ios26 border-white/20 hover:border-primary/40 hover:liquid-ios26-strong",
+                  : "liquid-ios26 border-black/20 hover:border-primary/40 hover:liquid-ios26-strong",
                 disabled && "opacity-50 cursor-not-allowed"
               )}
               onDragOver={handleDragOver}
@@ -152,9 +152,9 @@ export function UploadDropzone({
                 className="w-full h-full object-contain"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-white">
+              <div className="flex items-center gap-2 text-foreground">
                 <ImageIcon className="w-4 h-4" />
                 <span className="text-sm font-medium truncate max-w-[200px]">
                   {selectedFile.name}
@@ -167,7 +167,7 @@ export function UploadDropzone({
                   onClick={handleClear}
                   className="p-2 rounded-full liquid-ios26-button transition-spring"
                 >
-                  <X className="w-4 h-4 text-white" />
+                  <X className="w-4 h-4 text-foreground" />
                 </motion.button>
               )}
             </div>

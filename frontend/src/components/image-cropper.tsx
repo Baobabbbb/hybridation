@@ -68,7 +68,7 @@ export function ImageCropper({ imageSrc, onCropComplete }: ImageCropperProps) {
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/70 backdrop-blur-sm text-white text-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-sm text-foreground text-sm"
             >
               <MousePointerClick className="w-4 h-4" />
               <span>Draw a box around a furniture to find it</span>
