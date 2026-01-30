@@ -496,7 +496,7 @@ export default function HomePage() {
               </div>
 
               {/* Interactive Image - 360° View or Standard Cropper - Responsive avec plus d'espacement */}
-              <Card className="liquid-ios26 overflow-hidden shadow-2xl">
+              <Card className="liquid-ios26 liquid-ios26-no-animation liquid-ios26-no-hover overflow-hidden shadow-2xl">
                 <CardContent className="p-3 sm:p-5 md:p-6 lg:p-8">
                   {is360Format ? (
                     <>

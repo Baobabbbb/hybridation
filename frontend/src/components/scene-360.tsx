@@ -221,9 +221,9 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Buttons - COMPLETELY SEPARATE from the view */}
-      <div className="flex items-center gap-4 flex-wrap p-1">
-        <div className="flex rounded-xl overflow-hidden border border-black/10 shadow-sm bg-white">
+      {/* Buttons - COMPLETELY SEPARATE from the view - high z-index */}
+      <div className="flex items-center gap-4 flex-wrap p-1 relative z-50">
+        <div className="flex rounded-xl overflow-hidden border border-black/10 shadow-sm bg-white relative z-50">
           <button
             type="button"
             onClick={handleNavigateClick}
@@ -259,8 +259,8 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
         </p>
       </div>
 
-      {/* View area - fixed height container */}
-      <div style={{ height: '500px', position: 'relative' }}>
+      {/* View area - fixed height container - lower z-index than buttons */}
+      <div style={{ height: '500px', position: 'relative', zIndex: 1 }}>
         {/* 360° View - always rendered but hidden when in select mode */}
         <div 
           style={{ 
