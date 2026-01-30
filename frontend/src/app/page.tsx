@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -64,6 +64,13 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
+
+  // Scroll to top when generation is complete
+  useEffect(() => {
+    if (appState === "result") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [appState]);
 
   // Handle file selection
   const handleFileSelect = useCallback((file: File) => {
