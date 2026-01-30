@@ -10,23 +10,17 @@ import "react-image-crop/dist/ReactCrop.css";
 
 // ==================== TYPES ====================
 
-type ViewMode = "navigate" | "select";
-
 interface Scene360Props {
   imageUrl: string;
   onSelectProduct: (croppedImageBase64: string) => void;
 }
 
-interface SphereViewerProps {
-  imageUrl: string;
-}
-
 interface CanvasCaptureProps {
   onCapture: (dataUrl: string) => void;
-  triggerCapture: number; // increment to trigger capture
+  triggerCapture: number;
 }
 
-// ==================== CANVAS CAPTURE COMPONENT ====================
+// ==================== CANVAS CAPTURE ====================
 
 function CanvasCapture({ onCapture, triggerCapture }: CanvasCaptureProps) {
   const { gl, scene, camera } = useThree();
@@ -35,22 +29,20 @@ function CanvasCapture({ onCapture, triggerCapture }: CanvasCaptureProps) {
   useEffect(() => {
     if (triggerCapture > 0 && triggerCapture !== lastTrigger.current) {
       lastTrigger.current = triggerCapture;
-      // Small delay to ensure the scene is fully rendered
       setTimeout(() => {
         gl.render(scene, camera);
         const dataUrl = gl.domElement.toDataURL("image/png");
         onCapture(dataUrl);
-      }, 100);
+      }, 150);
     }
   }, [triggerCapture, gl, scene, camera, onCapture]);
 
   return null;
 }
 
-// ==================== SPHERE VIEWER COMPONENT ====================
+// ==================== SPHERE VIEWER ====================
 
-function SphereViewer({ imageUrl }: SphereViewerProps) {
-  const sphereRef = useRef<THREE.Mesh>(null);
+function SphereViewer({ imageUrl }: { imageUrl: string }) {
   const texture = useLoader(THREE.TextureLoader, imageUrl);
 
   useEffect(() => {
@@ -65,120 +57,27 @@ function SphereViewer({ imageUrl }: SphereViewerProps) {
     }
   }, [texture]);
 
-  const sphereGeometry = useMemo(() => new THREE.SphereGeometry(5, 128, 128), []);
+  const geometry = useMemo(() => new THREE.SphereGeometry(5, 128, 128), []);
 
   return (
-    <mesh ref={sphereRef} scale={[-1, 1, 1]} geometry={sphereGeometry}>
+    <mesh scale={[-1, 1, 1]} geometry={geometry}>
       <meshBasicMaterial map={texture} side={THREE.BackSide} />
     </mesh>
   );
 }
 
-// ==================== LOADING FALLBACK ====================
-
-function LoadingFallback() {
-  return (
-    <mesh>
-      <sphereGeometry args={[5, 32, 32]} />
-      <meshBasicMaterial color="#1a1a2e" side={THREE.BackSide} />
-    </mesh>
-  );
-}
-
-// ==================== SELECTION VIEW COMPONENT ====================
-
-interface SelectionViewProps {
-  capturedImage: string;
-  onCropComplete: (croppedImageBase64: string) => void;
-}
-
-function SelectionView({ capturedImage, onCropComplete }: SelectionViewProps) {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [crop, setCrop] = useState<Crop>();
-  const [isSelecting, setIsSelecting] = useState(false);
-
-  const handleCropComplete = useCallback(
-    (c: PixelCrop) => {
-      if (c.width > 20 && c.height > 20 && imgRef.current) {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) return;
-
-        const image = imgRef.current;
-        const scaleX = image.naturalWidth / image.width;
-        const scaleY = image.naturalHeight / image.height;
-
-        canvas.width = c.width * scaleX;
-        canvas.height = c.height * scaleY;
-
-        ctx.drawImage(
-          image,
-          c.x * scaleX,
-          c.y * scaleY,
-          c.width * scaleX,
-          c.height * scaleY,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
-
-        const base64 = canvas.toDataURL("image/png");
-        onCropComplete(base64);
-      }
-    },
-    [onCropComplete]
-  );
-
-  return (
-    <div className="w-full rounded-xl overflow-hidden bg-white border border-black/10">
-      {/* Header */}
-      <div className="flex items-center gap-2 p-3 border-b border-black/10 bg-muted/30">
-        <MousePointer2 className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium">Dessinez un rectangle autour du meuble</span>
-      </div>
-
-      {/* Crop area */}
-      <div className="p-4 flex items-center justify-center bg-muted/10" style={{ minHeight: '400px', maxHeight: '500px' }}>
-        <div className="relative">
-          {isSelecting && (
-            <div className="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-              <div className="w-2 h-2 rounded-full bg-primary-foreground" />
-              <span>Sélection...</span>
-            </div>
-          )}
-
-          <ReactCrop
-            crop={crop}
-            onChange={(c) => setCrop(c)}
-            onComplete={handleCropComplete}
-            onDragStart={() => setIsSelecting(true)}
-            onDragEnd={() => setIsSelecting(false)}
-            className="rounded-lg overflow-hidden"
-          >
-            <img
-              ref={imgRef}
-              src={capturedImage}
-              alt="Vue 360° capturée"
-              style={{ maxHeight: '450px', maxWidth: '100%', objectFit: 'contain' }}
-              crossOrigin="anonymous"
-            />
-          </ReactCrop>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ==================== MAIN SCENE360 COMPONENT ====================
+// ==================== MAIN COMPONENT ====================
 
 export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   const [isLoading, setIsLoading] = useState(true);
-  const [mode, setMode] = useState<ViewMode>("navigate");
+  const [showSelection, setShowSelection] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [captureCounter, setCaptureCounter] = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
+  
+  // Crop state
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [crop, setCrop] = useState<Crop>();
 
   useEffect(() => {
     const img = new Image();
@@ -187,159 +86,258 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
     img.src = imageUrl;
   }, [imageUrl]);
 
-  // Handle capture result
   const handleCapture = useCallback((dataUrl: string) => {
     setCapturedImage(dataUrl);
     setIsCapturing(false);
-    setMode("select");
+    setShowSelection(true);
   }, []);
 
-  // Handle click on "Sélectionner" - always trigger a new capture
-  const handleSelectClick = useCallback(() => {
+  const handleNavigationClick = useCallback(() => {
+    console.log("Navigation clicked");
+    setShowSelection(false);
+  }, []);
+
+  const handleSelectionClick = useCallback(() => {
+    console.log("Selection clicked");
     setIsCapturing(true);
     setCaptureCounter(prev => prev + 1);
   }, []);
 
-  // Handle click on "Navigation"
-  const handleNavigateClick = useCallback(() => {
-    setMode("navigate");
-  }, []);
+  const handleCropComplete = useCallback((c: PixelCrop) => {
+    if (c.width > 20 && c.height > 20 && imgRef.current) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-  const handleCropComplete = useCallback(
-    (croppedImageBase64: string) => {
-      onSelectProduct(croppedImageBase64);
-    },
-    [onSelectProduct]
-  );
+      const image = imgRef.current;
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
 
-  const canvasStyle = useMemo(() => ({ 
-    background: "#f5f5f5",
-    cursor: "grab",
-    width: '100%',
-    height: '100%'
-  }), []);
+      canvas.width = c.width * scaleX;
+      canvas.height = c.height * scaleY;
+
+      ctx.drawImage(
+        image,
+        c.x * scaleX,
+        c.y * scaleY,
+        c.width * scaleX,
+        c.height * scaleY,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      onSelectProduct(canvas.toDataURL("image/png"));
+    }
+  }, [onSelectProduct]);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Buttons - COMPLETELY SEPARATE from the view - high z-index */}
-      <div className="flex items-center gap-4 flex-wrap p-1 relative z-50">
-        <div className="flex rounded-xl overflow-hidden border border-black/10 shadow-sm bg-white relative z-50">
+    <div>
+      {/* BUTTONS - Simple HTML buttons with inline styles */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '16px',
+        marginBottom: '16px',
+        flexWrap: 'wrap'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          borderRadius: '12px', 
+          overflow: 'hidden',
+          border: '1px solid #e5e5e5',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        }}>
           <button
             type="button"
-            onClick={handleNavigateClick}
+            onClick={handleNavigationClick}
             disabled={isCapturing}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
-              mode === "navigate"
-                ? "bg-primary text-primary-foreground"
-                : "bg-white text-muted-foreground hover:bg-muted/50"
-            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              border: 'none',
+              cursor: isCapturing ? 'not-allowed' : 'pointer',
+              backgroundColor: !showSelection ? '#0f172a' : '#ffffff',
+              color: !showSelection ? '#ffffff' : '#64748b',
+              transition: 'all 0.2s'
+            }}
           >
-            <Move3D className="w-5 h-5" />
-            <span>Navigation</span>
+            <Move3D style={{ width: '20px', height: '20px' }} />
+            Navigation
           </button>
           <button
             type="button"
-            onClick={handleSelectClick}
+            onClick={handleSelectionClick}
             disabled={isCapturing}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
-              mode === "select"
-                ? "bg-primary text-primary-foreground"
-                : "bg-white text-muted-foreground hover:bg-muted/50"
-            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              border: 'none',
+              cursor: isCapturing ? 'not-allowed' : 'pointer',
+              backgroundColor: showSelection ? '#0f172a' : '#ffffff',
+              color: showSelection ? '#ffffff' : '#64748b',
+              transition: 'all 0.2s'
+            }}
           >
-            <Camera className="w-5 h-5" />
-            <span>{isCapturing ? "Capture..." : "Sélectionner"}</span>
+            <Camera style={{ width: '20px', height: '20px' }} />
+            {isCapturing ? "Capture..." : "Sélectionner"}
           </button>
         </div>
-
-        <p className="text-sm text-muted-foreground flex-1">
-          {mode === "navigate" 
+        <span style={{ fontSize: '14px', color: '#64748b' }}>
+          {!showSelection 
             ? "🖱️ Glissez pour explorer, puis cliquez sur Sélectionner" 
-            : "✏️ Dessinez un rectangle sur le meuble à rechercher"}
-        </p>
+            : "✏️ Dessinez un rectangle sur le meuble"}
+        </span>
       </div>
 
-      {/* View area - fixed height container - lower z-index than buttons */}
-      <div style={{ height: '500px', position: 'relative', zIndex: 1 }}>
-        {/* 360° View - always rendered but hidden when in select mode */}
-        <div 
-          style={{ 
-            position: 'absolute', 
-            inset: 0, 
-            display: mode === "navigate" ? 'block' : 'none',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            border: '1px solid rgba(0,0,0,0.1)'
-          }}
-        >
-          {/* Loading overlay */}
-          {isLoading && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', zIndex: 10 }}>
-              <div className="text-foreground text-center px-4">
-                <div className="w-8 h-8 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-sm">Chargement de la vue 360°...</p>
+      {/* VIEW AREA */}
+      <div style={{ 
+        height: '500px', 
+        borderRadius: '12px', 
+        overflow: 'hidden',
+        border: '1px solid #e5e5e5',
+        backgroundColor: '#f5f5f5',
+        position: 'relative'
+      }}>
+        {/* 360° VIEW */}
+        {!showSelection && (
+          <>
+            {isLoading && (
+              <div style={{ 
+                position: 'absolute', 
+                inset: 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                zIndex: 10
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ 
+                    width: '32px', 
+                    height: '32px', 
+                    border: '2px solid #0f172a',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 8px'
+                  }} />
+                  <p style={{ fontSize: '14px', color: '#64748b' }}>Chargement...</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Capturing overlay */}
-          {isCapturing && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.9)', zIndex: 10 }}>
-              <div className="text-foreground text-center px-4">
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-sm">Capture en cours...</p>
+            {isCapturing && (
+              <div style={{ 
+                position: 'absolute', 
+                inset: 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                zIndex: 10
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ 
+                    width: '32px', 
+                    height: '32px', 
+                    border: '2px solid #3b82f6',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 8px'
+                  }} />
+                  <p style={{ fontSize: '14px', color: '#64748b' }}>Capture en cours...</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Three.js Canvas */}
-          <Canvas
-            camera={{
-              fov: 75,
-              position: [0, 0, 0.1],
-              near: 0.1,
-              far: 1000,
-            }}
-            style={canvasStyle}
-            dpr={[1, 2]}
-            gl={{ 
-              antialias: true,
-              powerPreference: "high-performance",
-              preserveDrawingBuffer: true,
-            }}
-          >
-            <Suspense fallback={<LoadingFallback />}>
-              <SphereViewer imageUrl={imageUrl} />
-              <CanvasCapture
-                onCapture={handleCapture}
-                triggerCapture={captureCounter}
+            <Canvas
+              camera={{ fov: 75, position: [0, 0, 0.1], near: 0.1, far: 1000 }}
+              style={{ width: '100%', height: '100%', cursor: 'grab' }}
+              dpr={[1, 2]}
+              gl={{ antialias: true, preserveDrawingBuffer: true }}
+            >
+              <Suspense fallback={null}>
+                <SphereViewer imageUrl={imageUrl} />
+                <CanvasCapture onCapture={handleCapture} triggerCapture={captureCounter} />
+              </Suspense>
+              <OrbitControls
+                enableZoom={true}
+                enablePan={false}
+                rotateSpeed={-0.4}
+                zoomSpeed={0.6}
+                minDistance={0.1}
+                maxDistance={4}
+                enableDamping={true}
+                dampingFactor={0.08}
               />
-            </Suspense>
+            </Canvas>
+          </>
+        )}
 
-            <OrbitControls
-              enableZoom={true}
-              enablePan={false}
-              rotateSpeed={-0.4}
-              zoomSpeed={0.6}
-              minDistance={0.1}
-              maxDistance={4}
-              target={[0, 0, 0]}
-              enableDamping={true}
-              dampingFactor={0.08}
-            />
-          </Canvas>
-        </div>
-
-        {/* Selection View */}
-        {mode === "select" && capturedImage && (
-          <div style={{ position: 'absolute', inset: 0 }}>
-            <SelectionView
-              capturedImage={capturedImage}
-              onCropComplete={handleCropComplete}
-            />
+        {/* SELECTION VIEW */}
+        {showSelection && capturedImage && (
+          <div style={{ 
+            width: '100%', 
+            height: '100%', 
+            backgroundColor: '#ffffff',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ 
+              padding: '12px 16px', 
+              borderBottom: '1px solid #e5e5e5',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: '#fafafa'
+            }}>
+              <MousePointer2 style={{ width: '16px', height: '16px', color: '#3b82f6' }} />
+              <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                Dessinez un rectangle autour du meuble
+              </span>
+            </div>
+            <div style={{ 
+              flex: 1, 
+              padding: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'auto'
+            }}>
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={handleCropComplete}
+              >
+                <img
+                  ref={imgRef}
+                  src={capturedImage}
+                  alt="Vue capturée"
+                  style={{ maxHeight: '420px', maxWidth: '100%', objectFit: 'contain' }}
+                  crossOrigin="anonymous"
+                />
+              </ReactCrop>
+            </div>
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
