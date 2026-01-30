@@ -4,7 +4,7 @@ import { useCallback, useRef, useState, useEffect, Suspense, useMemo } from "rea
 import { Canvas, useThree, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { MousePointer2, Move3D, Camera, X, ArrowLeft } from "lucide-react";
+import { MousePointer2, Move3D, Camera } from "lucide-react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
@@ -23,23 +23,26 @@ interface SphereViewerProps {
 
 interface CanvasCaptureProps {
   onCapture: (dataUrl: string) => void;
-  captureRequested: boolean;
-  onCaptureComplete: () => void;
+  triggerCapture: number; // increment to trigger capture
 }
 
 // ==================== CANVAS CAPTURE COMPONENT ====================
 
-function CanvasCapture({ onCapture, captureRequested, onCaptureComplete }: CanvasCaptureProps) {
+function CanvasCapture({ onCapture, triggerCapture }: CanvasCaptureProps) {
   const { gl, scene, camera } = useThree();
+  const lastTrigger = useRef(0);
 
   useEffect(() => {
-    if (captureRequested) {
-      gl.render(scene, camera);
-      const dataUrl = gl.domElement.toDataURL("image/png");
-      onCapture(dataUrl);
-      onCaptureComplete();
+    if (triggerCapture > 0 && triggerCapture !== lastTrigger.current) {
+      lastTrigger.current = triggerCapture;
+      // Small delay to ensure the scene is fully rendered
+      setTimeout(() => {
+        gl.render(scene, camera);
+        const dataUrl = gl.domElement.toDataURL("image/png");
+        onCapture(dataUrl);
+      }, 100);
     }
-  }, [captureRequested, gl, scene, camera, onCapture, onCaptureComplete]);
+  }, [triggerCapture, gl, scene, camera, onCapture]);
 
   return null;
 }
@@ -129,16 +132,16 @@ function SelectionView({ capturedImage, onCropComplete }: SelectionViewProps) {
   );
 
   return (
-    <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white border border-black/10 flex flex-col">
+    <div className="w-full rounded-xl overflow-hidden bg-white border border-black/10">
       {/* Header */}
-      <div className="flex items-center gap-2 p-3 sm:p-4 border-b border-black/10 bg-muted/30">
-        <MousePointer2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 text-primary" />
-        <span className="text-sm sm:text-base font-medium">Dessinez un rectangle autour du meuble à rechercher</span>
+      <div className="flex items-center gap-2 p-3 border-b border-black/10 bg-muted/30">
+        <MousePointer2 className="w-4 h-4 text-primary" />
+        <span className="text-sm font-medium">Dessinez un rectangle autour du meuble</span>
       </div>
 
       {/* Crop area */}
-      <div className="flex-1 overflow-auto p-3 sm:p-4 flex items-center justify-center bg-muted/10">
-        <div className="relative max-w-full max-h-full">
+      <div className="p-4 flex items-center justify-center bg-muted/10" style={{ minHeight: '400px', maxHeight: '500px' }}>
+        <div className="relative">
           {isSelecting && (
             <div className="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
               <div className="w-2 h-2 rounded-full bg-primary-foreground" />
@@ -158,7 +161,7 @@ function SelectionView({ capturedImage, onCropComplete }: SelectionViewProps) {
               ref={imgRef}
               src={capturedImage}
               alt="Vue 360° capturée"
-              className="max-w-full max-h-[calc(100vh-350px)] object-contain"
+              style={{ maxHeight: '450px', maxWidth: '100%', objectFit: 'contain' }}
               crossOrigin="anonymous"
             />
           </ReactCrop>
@@ -174,7 +177,8 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState<ViewMode>("navigate");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [captureRequested, setCaptureRequested] = useState(false);
+  const [captureCounter, setCaptureCounter] = useState(0);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     const img = new Image();
@@ -183,22 +187,22 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
     img.src = imageUrl;
   }, [imageUrl]);
 
+  // Handle capture result
   const handleCapture = useCallback((dataUrl: string) => {
     setCapturedImage(dataUrl);
-  }, []);
-
-  const handleCaptureComplete = useCallback(() => {
-    setCaptureRequested(false);
-  }, []);
-
-  const handleSelectMode = useCallback(() => {
+    setIsCapturing(false);
     setMode("select");
-    setCaptureRequested(true);
   }, []);
 
-  const handleNavigateMode = useCallback(() => {
+  // Handle click on "Sélectionner" - always trigger a new capture
+  const handleSelectClick = useCallback(() => {
+    setIsCapturing(true);
+    setCaptureCounter(prev => prev + 1);
+  }, []);
+
+  // Handle click on "Navigation"
+  const handleNavigateClick = useCallback(() => {
     setMode("navigate");
-    setCapturedImage(null);
   }, []);
 
   const handleCropComplete = useCallback(
@@ -210,21 +214,24 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
 
   const canvasStyle = useMemo(() => ({ 
     background: "#f5f5f5",
-    cursor: "grab"
+    cursor: "grab",
+    width: '100%',
+    height: '100%'
   }), []);
 
   return (
-    <div className="space-y-4">
-      {/* Buttons OUTSIDE the 360 view - always accessible */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex rounded-xl overflow-hidden bg-white border border-black/10 shadow-md">
+    <div className="flex flex-col gap-4">
+      {/* Buttons - COMPLETELY SEPARATE from the view */}
+      <div className="flex items-center gap-4 flex-wrap p-1">
+        <div className="flex rounded-xl overflow-hidden border border-black/10 shadow-sm bg-white">
           <button
             type="button"
-            onClick={handleNavigateMode}
-            className={`flex items-center justify-center gap-2 px-5 py-3 text-sm sm:text-base font-medium transition-colors ${
+            onClick={handleNavigateClick}
+            disabled={isCapturing}
+            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
               mode === "navigate"
                 ? "bg-primary text-primary-foreground"
-                : "bg-white text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                : "bg-white text-muted-foreground hover:bg-muted/50"
             }`}
           >
             <Move3D className="w-5 h-5" />
@@ -232,36 +239,55 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           </button>
           <button
             type="button"
-            onClick={handleSelectMode}
-            className={`flex items-center justify-center gap-2 px-5 py-3 text-sm sm:text-base font-medium transition-colors ${
+            onClick={handleSelectClick}
+            disabled={isCapturing}
+            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
               mode === "select"
                 ? "bg-primary text-primary-foreground"
-                : "bg-white text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                : "bg-white text-muted-foreground hover:bg-muted/50"
             }`}
           >
             <Camera className="w-5 h-5" />
-            <span>Sélectionner</span>
+            <span>{isCapturing ? "Capture..." : "Sélectionner"}</span>
           </button>
         </div>
 
-        {/* Instructions */}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground flex-1">
           {mode === "navigate" 
-            ? "🖱️ Glissez pour explorer la vue 360°" 
-            : "✏️ Dessinez un rectangle sur le meuble"}
+            ? "🖱️ Glissez pour explorer, puis cliquez sur Sélectionner" 
+            : "✏️ Dessinez un rectangle sur le meuble à rechercher"}
         </p>
       </div>
 
-      {/* Content area */}
-      {mode === "navigate" ? (
-        /* 360° View */
-        <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-xl overflow-hidden bg-white/20 border border-black/10">
+      {/* View area - fixed height container */}
+      <div style={{ height: '500px', position: 'relative' }}>
+        {/* 360° View - always rendered but hidden when in select mode */}
+        <div 
+          style={{ 
+            position: 'absolute', 
+            inset: 0, 
+            display: mode === "navigate" ? 'block' : 'none',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            border: '1px solid rgba(0,0,0,0.1)'
+          }}
+        >
           {/* Loading overlay */}
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)', zIndex: 10 }}>
               <div className="text-foreground text-center px-4">
                 <div className="w-8 h-8 border-2 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                 <p className="text-sm">Chargement de la vue 360°...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Capturing overlay */}
+          {isCapturing && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.9)', zIndex: 10 }}>
+              <div className="text-foreground text-center px-4">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-sm">Capture en cours...</p>
               </div>
             </div>
           )}
@@ -286,8 +312,7 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
               <SphereViewer imageUrl={imageUrl} />
               <CanvasCapture
                 onCapture={handleCapture}
-                captureRequested={captureRequested}
-                onCaptureComplete={handleCaptureComplete}
+                triggerCapture={captureCounter}
               />
             </Suspense>
 
@@ -304,15 +329,17 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
             />
           </Canvas>
         </div>
-      ) : (
-        /* Selection View */
-        capturedImage && (
-          <SelectionView
-            capturedImage={capturedImage}
-            onCropComplete={handleCropComplete}
-          />
-        )
-      )}
+
+        {/* Selection View */}
+        {mode === "select" && capturedImage && (
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <SelectionView
+              capturedImage={capturedImage}
+              onCropComplete={handleCropComplete}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
