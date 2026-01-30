@@ -17,25 +17,27 @@ interface Scene360Props {
 
 interface CanvasCaptureProps {
   onCapture: (dataUrl: string) => void;
-  triggerCapture: number;
+  shouldCapture: boolean;
 }
 
 // ==================== CANVAS CAPTURE ====================
 
-function CanvasCapture({ onCapture, triggerCapture }: CanvasCaptureProps) {
+function CanvasCapture({ onCapture, shouldCapture }: CanvasCaptureProps) {
   const { gl, scene, camera } = useThree();
-  const lastTrigger = useRef(0);
+  const hasCaptured = useRef(false);
 
   useEffect(() => {
-    if (triggerCapture > 0 && triggerCapture !== lastTrigger.current) {
-      lastTrigger.current = triggerCapture;
-      setTimeout(() => {
-        gl.render(scene, camera);
-        const dataUrl = gl.domElement.toDataURL("image/png");
-        onCapture(dataUrl);
-      }, 150);
+    if (shouldCapture && !hasCaptured.current) {
+      hasCaptured.current = true;
+      // Capture immediately
+      gl.render(scene, camera);
+      const dataUrl = gl.domElement.toDataURL("image/png");
+      onCapture(dataUrl);
     }
-  }, [triggerCapture, gl, scene, camera, onCapture]);
+    if (!shouldCapture) {
+      hasCaptured.current = false;
+    }
+  }, [shouldCapture, gl, scene, camera, onCapture]);
 
   return null;
 }
@@ -70,10 +72,8 @@ function SphereViewer({ imageUrl }: { imageUrl: string }) {
 
 export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
   const [isLoading, setIsLoading] = useState(true);
-  const [showSelection, setShowSelection] = useState(false);
+  const [mode, setMode] = useState<"navigate" | "capture" | "select">("navigate");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [captureCounter, setCaptureCounter] = useState(0);
-  const [isCapturing, setIsCapturing] = useState(false);
   
   // Crop state
   const imgRef = useRef<HTMLImageElement>(null);
@@ -86,21 +86,10 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
     img.src = imageUrl;
   }, [imageUrl]);
 
+  // Handle capture result - only called when mode is "capture"
   const handleCapture = useCallback((dataUrl: string) => {
     setCapturedImage(dataUrl);
-    setIsCapturing(false);
-    setShowSelection(true);
-  }, []);
-
-  const handleNavigationClick = useCallback(() => {
-    console.log("Navigation clicked");
-    setShowSelection(false);
-  }, []);
-
-  const handleSelectionClick = useCallback(() => {
-    console.log("Selection clicked");
-    setIsCapturing(true);
-    setCaptureCounter(prev => prev + 1);
+    setMode("select");
   }, []);
 
   const handleCropComplete = useCallback((c: PixelCrop) => {
@@ -132,39 +121,57 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
     }
   }, [onSelectProduct]);
 
+  // Button styles
+  const buttonBase = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '14px 24px',
+    fontSize: '14px',
+    fontWeight: 600,
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    outline: 'none',
+  } as const;
+
   return (
     <div>
-      {/* BUTTONS - Simple HTML buttons with inline styles */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '16px',
-        marginBottom: '16px',
-        flexWrap: 'wrap'
-      }}>
+      {/* TOOLBAR - Completely isolated from canvas */}
+      <div 
+        style={{ 
+          marginBottom: '16px',
+          padding: '4px',
+          position: 'relative',
+          zIndex: 100,
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div style={{ 
-          display: 'flex', 
+          display: 'inline-flex', 
           borderRadius: '12px', 
           overflow: 'hidden',
-          border: '1px solid #e5e5e5',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          border: '2px solid #e2e8f0',
+          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+          backgroundColor: '#ffffff',
         }}>
           <button
             type="button"
-            onClick={handleNavigationClick}
-            disabled={isCapturing}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setMode("navigate");
+              setCapturedImage(null);
+            }}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 20px',
-              fontSize: '14px',
-              fontWeight: 500,
-              border: 'none',
-              cursor: isCapturing ? 'not-allowed' : 'pointer',
-              backgroundColor: !showSelection ? '#0f172a' : '#ffffff',
-              color: !showSelection ? '#ffffff' : '#64748b',
-              transition: 'all 0.2s'
+              ...buttonBase,
+              backgroundColor: mode === "navigate" ? '#0f172a' : '#ffffff',
+              color: mode === "navigate" ? '#ffffff' : '#64748b',
             }}
           >
             <Move3D style={{ width: '20px', height: '20px' }} />
@@ -172,71 +179,56 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           </button>
           <button
             type="button"
-            onClick={handleSelectionClick}
-            disabled={isCapturing}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (mode === "navigate") {
+                setMode("capture");
+              }
+            }}
+            disabled={mode === "capture"}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 20px',
-              fontSize: '14px',
-              fontWeight: 500,
-              border: 'none',
-              cursor: isCapturing ? 'not-allowed' : 'pointer',
-              backgroundColor: showSelection ? '#0f172a' : '#ffffff',
-              color: showSelection ? '#ffffff' : '#64748b',
-              transition: 'all 0.2s'
+              ...buttonBase,
+              backgroundColor: mode !== "navigate" ? '#0f172a' : '#ffffff',
+              color: mode !== "navigate" ? '#ffffff' : '#64748b',
+              opacity: mode === "capture" ? 0.7 : 1,
             }}
           >
             <Camera style={{ width: '20px', height: '20px' }} />
-            {isCapturing ? "Capture..." : "Sélectionner"}
+            {mode === "capture" ? "Capture..." : "Sélectionner"}
           </button>
         </div>
-        <span style={{ fontSize: '14px', color: '#64748b' }}>
-          {!showSelection 
-            ? "🖱️ Glissez pour explorer, puis cliquez sur Sélectionner" 
-            : "✏️ Dessinez un rectangle sur le meuble"}
-        </span>
+        
+        <p style={{ 
+          marginTop: '12px', 
+          fontSize: '14px', 
+          color: '#64748b',
+          marginBottom: 0 
+        }}>
+          {mode === "navigate" && "🖱️ Glissez pour explorer la vue 360°, puis cliquez sur Sélectionner"}
+          {mode === "capture" && "⏳ Capture de la vue en cours..."}
+          {mode === "select" && "✏️ Dessinez un rectangle autour du meuble à rechercher"}
+        </p>
       </div>
 
-      {/* VIEW AREA */}
+      {/* VIEW CONTAINER */}
       <div style={{ 
         height: '500px', 
-        borderRadius: '12px', 
+        borderRadius: '16px', 
         overflow: 'hidden',
-        border: '1px solid #e5e5e5',
-        backgroundColor: '#f5f5f5',
+        border: '2px solid #e2e8f0',
+        backgroundColor: '#f8fafc',
         position: 'relative'
       }}>
-        {/* 360° VIEW */}
-        {!showSelection && (
-          <>
+        
+        {/* 360° VIEW - Only show when in navigate or capture mode */}
+        {(mode === "navigate" || mode === "capture") && (
+          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
             {isLoading && (
-              <div style={{ 
-                position: 'absolute', 
-                inset: 0, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                zIndex: 10
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    width: '32px', 
-                    height: '32px', 
-                    border: '2px solid #0f172a',
-                    borderTopColor: 'transparent',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                    margin: '0 auto 8px'
-                  }} />
-                  <p style={{ fontSize: '14px', color: '#64748b' }}>Chargement...</p>
-                </div>
-              </div>
-            )}
-
-            {isCapturing && (
               <div style={{ 
                 position: 'absolute', 
                 inset: 0, 
@@ -247,14 +239,37 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
                 zIndex: 10
               }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    width: '32px', 
-                    height: '32px', 
-                    border: '2px solid #3b82f6',
-                    borderTopColor: 'transparent',
+                  <div className="animate-spin" style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    border: '3px solid #e2e8f0',
+                    borderTopColor: '#0f172a',
                     borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                    margin: '0 auto 8px'
+                    margin: '0 auto 12px'
+                  }} />
+                  <p style={{ fontSize: '14px', color: '#64748b' }}>Chargement de la vue 360°...</p>
+                </div>
+              </div>
+            )}
+
+            {mode === "capture" && (
+              <div style={{ 
+                position: 'absolute', 
+                inset: 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                zIndex: 10
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="animate-spin" style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    border: '3px solid #e2e8f0',
+                    borderTopColor: '#3b82f6',
+                    borderRadius: '50%',
+                    margin: '0 auto 12px'
                   }} />
                   <p style={{ fontSize: '14px', color: '#64748b' }}>Capture en cours...</p>
                 </div>
@@ -269,9 +284,13 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
             >
               <Suspense fallback={null}>
                 <SphereViewer imageUrl={imageUrl} />
-                <CanvasCapture onCapture={handleCapture} triggerCapture={captureCounter} />
+                <CanvasCapture 
+                  onCapture={handleCapture} 
+                  shouldCapture={mode === "capture"} 
+                />
               </Suspense>
               <OrbitControls
+                enabled={mode === "navigate"}
                 enableZoom={true}
                 enablePan={false}
                 rotateSpeed={-0.4}
@@ -282,11 +301,11 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
                 dampingFactor={0.08}
               />
             </Canvas>
-          </>
+          </div>
         )}
 
         {/* SELECTION VIEW */}
-        {showSelection && capturedImage && (
+        {mode === "select" && capturedImage && (
           <div style={{ 
             width: '100%', 
             height: '100%', 
@@ -295,25 +314,26 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
             flexDirection: 'column'
           }}>
             <div style={{ 
-              padding: '12px 16px', 
-              borderBottom: '1px solid #e5e5e5',
+              padding: '14px 20px', 
+              borderBottom: '2px solid #e2e8f0',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#fafafa'
+              gap: '10px',
+              backgroundColor: '#f8fafc'
             }}>
-              <MousePointer2 style={{ width: '16px', height: '16px', color: '#3b82f6' }} />
-              <span style={{ fontSize: '14px', fontWeight: 500 }}>
+              <MousePointer2 style={{ width: '18px', height: '18px', color: '#3b82f6' }} />
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>
                 Dessinez un rectangle autour du meuble
               </span>
             </div>
             <div style={{ 
               flex: 1, 
-              padding: '16px',
+              padding: '20px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              overflow: 'auto'
+              overflow: 'auto',
+              backgroundColor: '#f1f5f9'
             }}>
               <ReactCrop
                 crop={crop}
@@ -324,7 +344,13 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
                   ref={imgRef}
                   src={capturedImage}
                   alt="Vue capturée"
-                  style={{ maxHeight: '420px', maxWidth: '100%', objectFit: 'contain' }}
+                  style={{ 
+                    maxHeight: '400px', 
+                    maxWidth: '100%', 
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                  }}
                   crossOrigin="anonymous"
                 />
               </ReactCrop>
@@ -332,12 +358,6 @@ export function Scene360({ imageUrl, onSelectProduct }: Scene360Props) {
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
