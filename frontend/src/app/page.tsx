@@ -149,14 +149,14 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col">
-      {/* Header - Transparent */}
-      <header className="sticky top-0 z-50">
+      {/* Header - Transparent and pointer-events-none except for clickable elements */}
+      <header className="sticky top-0 z-50 pointer-events-none">
         <div className="container mx-auto px-3 sm:px-4 py-0">
           <div className="flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={handleReset}
-              className="shrink-0 p-0 border-0 bg-transparent cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded"
+              className="shrink-0 p-0 border-0 bg-transparent cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded pointer-events-auto"
               aria-label="Retour à l'accueil"
             >
               <Image
@@ -170,7 +170,7 @@ export default function HomePage() {
             </button>
 
             {appState === "result" && (
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 pointer-events-auto">
                 <Button 
                   variant="outline" 
                   size="sm" 
